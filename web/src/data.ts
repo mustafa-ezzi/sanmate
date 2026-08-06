@@ -14,10 +14,12 @@ import {
 } from 'lucide-react'
 
 export const images = {
-  logo: '/images/sanmate-logo.jpeg',
+  logo: '/images/logo-bg.png',
+  logoLegacy: '/images/sanmate-logo.jpeg',
   wasteChrome: '/images/waste-pipe-chrome.jpeg',
   wasteWhite: '/images/waste-pipe-white.jpeg',
   bottleTrap: '/images/bottle-trap-white.jpeg',
+  bottleTrapBg: '/images/bottle-trap-bg.png',
   brandHero: '/images/brand-hero.jpeg',
   promoFlowing: '/images/promo-flowing.jpeg',
   wasteFeaturesWhite: '/images/waste-features-white.jpeg',

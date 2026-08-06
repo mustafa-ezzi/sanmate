@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #F7F7F5;
+  --color-bg: #F0F0EC;
   --color-surface: #FFFFFF;
   --color-ink: #111111;
   --color-muted: #666666;
@@ -272,6 +272,23 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 5.5rem;
     padding-bottom: 5.5rem;
   }
+}
+
+/* Product elevate — floating depth on cut-out canvases */
+.pe-waste canvas,
+.pe-bottle canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto !important;
+  height: auto !important;
+  filter: drop-shadow(0 14px 22px rgba(27, 29, 99, 0.2))
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.07));
+}
+
+/* Transparent bottle trap PNG — soft depth on gray stage */
+.pe-bottle-img {
+  filter: drop-shadow(0 14px 22px rgba(27, 29, 99, 0.2))
+    drop-shadow(0 3px 8px rgba(0, 0, 0, 0.07));
 }
 
 @media (prefers-reduced-motion: reduce) {
