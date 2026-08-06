@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react'
 import { ShoppingBag } from 'lucide-react'
 import { images } from '../data'
 import CutoutProduct from './CutoutProduct'
+import bottleTrapBg from '../assets/bottle-trap-bg.png'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -149,11 +150,16 @@ export default function ProductElevate({ active = true }: Props) {
           </div>
 
           <div className="pe-bottle absolute inset-0 flex items-center justify-center will-change-transform">
-            <img
-              src={images.bottleTrapBg}
+            <CutoutProduct
+              src={bottleTrapBg}
               alt="SANMATE bottle trap"
-              className="max-w-[88%] max-h-[88%] w-auto h-auto object-contain pe-bottle-img select-none pointer-events-none"
-              draggable={false}
+              bgMode="dark"
+              cropTop={0.12}
+              cropBottom={0.02}
+              cropSide={0.04}
+              saturate={0.85}
+              brightness={0.96}
+              className="max-w-[90%] max-h-[90%] pe-bottle-img"
             />
           </div>
         </div>

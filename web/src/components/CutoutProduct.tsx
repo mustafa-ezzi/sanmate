@@ -5,18 +5,17 @@ type CutoutProductProps = {
   src: string
   alt: string
   className?: string
-  /** Fraction of image height to crop from top (removes baked-in logo text) */
   cropTop?: number
-  /** Fraction to crop from bottom */
   cropBottom?: number
-  /** 1 = normal, <1 desaturates (e.g. 0.55) */
+  cropSide?: number
   saturate?: number
-  /** 1 = normal, <1 darkens */
   brightness?: number
+  /** light = remove white studio bg; dark = remove black bg */
+  bgMode?: 'light' | 'dark'
 }
 
 /**
- * Removes light studio background + top branding strip so only the product remains.
+ * Removes studio background so only the product remains.
  */
 export default function CutoutProduct({
   src,
@@ -24,8 +23,10 @@ export default function CutoutProduct({
   className = '',
   cropTop = 0.28,
   cropBottom = 0.04,
+  cropSide = 0.06,
   saturate = 1,
   brightness: brightMul = 1,
+  bgMode = 'light',
 }: CutoutProductProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [ready, setReady] = useState(false)
@@ -36,6 +37,10 @@ export default function CutoutProduct({
     img.decoding = 'async'
     img.src = src
 
+    const onError = () => {
+      console.error('Failed to load product image:', src)
+    }
+
     const run = () => {
       if (cancelled || !canvasRef.current) return
       const canvas = canvasRef.current
@@ -43,13 +48,14 @@ export default function CutoutProduct({
       if (!ctx) return
 
       const sy = Math.floor(img.height * cropTop)
-      const sh = Math.floor(img.height * (1 - cropTop - cropBottom))
-      const sx = Math.floor(img.width * 0.06)
-      const sw = Math.floor(img.width * 0.88)
+      const sh = Math.max(1, Math.floor(img.height * (1 - cropTop - cropBottom)))
+      const sx = Math.floor(img.width * cropSide)
+      const sw = Math.max(1, Math.floor(img.width * (1 - cropSide * 2)))
 
       const scale = 2
       canvas.width = sw * scale
       canvas.height = sh * scale
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
@@ -64,27 +70,40 @@ export default function CutoutProduct({
         const brightness = (r + g + b) / 3
         const sat = max === 0 ? 0 : (max - min) / max
 
-        // Near-white / light grey studio backdrop → transparent
-        if (brightness > 218 && sat < 0.18) {
-          d[i + 3] = 0
-          continue
-        }
-        if (brightness > 195 && sat < 0.1) {
-          d[i + 3] = Math.round(((brightness - 195) / 23) * 0) // kill soft grey
-          continue
-        }
-        if (brightness > 180 && sat < 0.07) {
-          d[i + 3] = Math.min(d[i + 3], Math.round((1 - (brightness - 180) / 40) * 180))
-          continue
+        if (bgMode === 'dark') {
+          // Near-black backdrop → transparent (keep white product)
+          if (brightness < 28) {
+            d[i + 3] = 0
+            continue
+          }
+          if (brightness < 48) {
+            d[i + 3] = Math.round(((brightness - 28) / 20) * 255)
+            continue
+          }
+          if (brightness < 70 && sat < 0.12) {
+            const t = (brightness - 48) / 22
+            d[i + 3] = Math.round(d[i + 3] * (0.35 + t * 0.65))
+          }
+        } else {
+          // Near-white / light grey studio backdrop → transparent
+          if (brightness > 218 && sat < 0.18) {
+            d[i + 3] = 0
+            continue
+          }
+          if (brightness > 195 && sat < 0.1) {
+            d[i + 3] = 0
+            continue
+          }
+          if (brightness > 180 && sat < 0.07) {
+            d[i + 3] = Math.min(d[i + 3], Math.round((1 - (brightness - 180) / 40) * 180))
+            continue
+          }
+          if (brightness > 170 && sat < 0.12) {
+            const t = (brightness - 170) / 50
+            d[i + 3] = Math.round(d[i + 3] * (1 - t * 0.85))
+          }
         }
 
-        // Soft edge: semi-light pixels near backdrop
-        if (brightness > 170 && sat < 0.12) {
-          const t = (brightness - 170) / 50
-          d[i + 3] = Math.round(d[i + 3] * (1 - t * 0.85))
-        }
-
-        // Tone / desaturate remaining product pixels
         if (d[i + 3] > 0 && (saturate !== 1 || brightMul !== 1)) {
           let nr = r
           let ng = g
@@ -111,13 +130,14 @@ export default function CutoutProduct({
       ScrollTrigger.refresh()
     }
 
-    if (img.complete) run()
+    img.onerror = onError
+    if (img.complete && img.naturalWidth > 0) run()
     else img.onload = run
 
     return () => {
       cancelled = true
     }
-  }, [src, cropTop, cropBottom, saturate, brightMul])
+  }, [src, cropTop, cropBottom, cropSide, saturate, brightMul, bgMode])
 
   return (
     <canvas
