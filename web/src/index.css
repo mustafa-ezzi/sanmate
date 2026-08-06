@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #F7F7F5;
+  --color-surface: #FFFFFF;
+  --color-ink: #111111;
+  --color-muted: #666666;
+  --color-navy: #0F4C81;
+  --color-chrome: #C9CED3;
+  --color-border: #E6E6E6;
+  --color-accent: #E85D1C;
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --ease-premium: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-premium: 0 20px 60px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-navy) 20%, transparent);
+  color: var(--color-navy);
+}
+
+.cursor-glow {
+  position: fixed;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(circle, rgba(15, 76, 129, 0.08) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  mix-blend-mode: multiply;
+  transition: opacity 0.4s var(--ease-premium);
+  opacity: 0;
+}
+
+.cursor-glow.is-active {
+  opacity: 1;
+}
+
+.magnetic-btn {
+  transition: transform 0.5s var(--ease-premium), box-shadow 0.5s var(--ease-premium);
+}
+
+.magnetic-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-premium);
+}
+
+.chrome-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.chrome-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-120%);
+  animation: shine 4s var(--ease-premium) infinite;
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0%, 60% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+}
+
+.float-product {
+  animation: float 6s ease-in-out infinite;
+}
+
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease-premium);
+}
+
+.faq-answer.open {
+  grid-template-rows: 1fr;
+}
+
+.faq-answer > div {
+  overflow: hidden;
+}
+
+.gallery-item img {
+  transition: transform 0.8s var(--ease-premium);
+}
+
+.gallery-item:hover img {
+  transform: scale(1.08);
+}
+
+.spec-card,
+.feature-card {
+  transition: transform 0.5s var(--ease-premium), box-shadow 0.5s var(--ease-premium);
+}
+
+.spec-card:hover,
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-premium);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-product,
+  .chrome-shine::after {
+    animation: none;
+  }
+}
