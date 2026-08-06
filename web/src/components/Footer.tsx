@@ -23,8 +23,19 @@ export default function Footer() {
             <a href="#contact" className="hover-target hover:text-accent transition-colors">Contact</a>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row justify-between gap-2 pt-5 border-t border-white/15 text-xs text-white/50">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-5 border-t border-white/15 text-xs text-white/50">
           <p>© {new Date().getFullYear()} SANMATE</p>
+          <p>
+            Designed by{' '}
+            <a
+              href="https://www.trisitesolutions.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover-target font-semibold text-[#22C55E] hover:text-[#4ADE80] transition-colors"
+            >
+              TrisiteSolutions
+            </a>
+          </p>
           <a href="mailto:info.samsenterprise.pk@gmail.com" className="hover:text-white break-all">
             info.samsenterprise.pk@gmail.com
           </a>
