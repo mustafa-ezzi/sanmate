@@ -286,18 +286,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Bottle trap cutout — soft depth on gray stage */
-.pe-bottle canvas.pe-bottle-img,
-.bt-cutout {
+.pe-bottle canvas.pe-bottle-img {
   filter: drop-shadow(0 14px 22px rgba(27, 29, 99, 0.2))
     drop-shadow(0 3px 8px rgba(0, 0, 0, 0.07));
-}
-
-.bt-product canvas,
-.buy-media canvas {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto !important;
-  height: auto !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
