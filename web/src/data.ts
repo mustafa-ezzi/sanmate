@@ -1,4 +1,20 @@
+import {
+  ShieldCheck,
+  Wrench,
+  Droplets,
+  Layers,
+  Ruler,
+  Ban,
+  ArrowUpDown,
+  CircleDot,
+  Trash2,
+  Gauge,
+  MoveVertical,
+  type LucideIcon,
+} from 'lucide-react'
+
 export const images = {
+  logo: '/images/sanmate-logo.jpeg',
   wasteChrome: '/images/waste-pipe-chrome.jpeg',
   wasteWhite: '/images/waste-pipe-white.jpeg',
   bottleTrap: '/images/bottle-trap-white.jpeg',
@@ -10,7 +26,6 @@ export const images = {
   bottleFeatures2: '/images/bottle-trap-features-2.jpeg',
   wasteExploded: '/images/waste-exploded.jpeg',
   wasteExploded2: '/images/waste-exploded-2.jpeg',
-  // Lifestyle / atmosphere (external)
   marbleBath:
     'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1600&q=80',
   darkStone:
@@ -21,25 +36,23 @@ export const images = {
     'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=1600&q=80',
   hotelBath:
     'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=80',
-  chromeMacro:
-    'https://images.unsplash.com/photo-1584622781564-1d987f7333c1?auto=format&fit=crop&w=1200&q=80',
 }
 
-export const wasteFeatures = [
-  { title: 'No Screw Inside', text: 'Hassle-free design for a smooth experience.' },
-  { title: 'Rust Free', text: 'Built to last. Always corrosion-resistant.' },
-  { title: 'Easy to Install', text: 'Quick & simple installation for everyone.' },
-  { title: 'Removable Basket', text: 'Keeps your drain hygienic & odor-free.' },
-  { title: 'ABS / Chrome', text: 'Premium materials for unmatched performance.' },
-  { title: '30 Inch Pipe', text: 'Ideal length for maximum convenience.' },
+export const wasteFeatures: { title: string; text: string; Icon: LucideIcon }[] = [
+  { title: 'No Screw Inside', text: 'Hassle-free design for a smooth experience.', Icon: Ban },
+  { title: 'Rust Free', text: 'Built to last. Always corrosion-resistant.', Icon: ShieldCheck },
+  { title: 'Easy to Install', text: 'Quick & simple installation for everyone.', Icon: Wrench },
+  { title: 'Removable Basket', text: 'Keeps your drain hygienic & odor-free.', Icon: Droplets },
+  { title: 'ABS / Chrome', text: 'Premium materials for unmatched performance.', Icon: Layers },
+  { title: '30 Inch Pipe', text: 'Ideal length for maximum convenience.', Icon: Ruler },
 ]
 
-export const bottleFeatures = [
-  { title: 'Adjustable Height', text: 'Easily adjusts to your installation needs.' },
-  { title: 'Universal Trap Bowl', text: 'Universal design fits most basins seamlessly.' },
-  { title: 'Removable Base', text: 'Easy to remove and clean for a clog-free experience.' },
-  { title: '36L/min Flow', text: '32mm or 40mm waste inlet/outlet with high flow.' },
-  { title: '6" Telescope', text: 'Flexible extension for the perfect fit.' },
+export const bottleFeatures: { title: string; text: string; Icon: LucideIcon }[] = [
+  { title: 'Adjustable Height', text: 'Easily adjusts to your installation needs.', Icon: ArrowUpDown },
+  { title: 'Universal Trap Bowl', text: 'Universal design fits most basins seamlessly.', Icon: CircleDot },
+  { title: 'Removable Base', text: 'Easy to remove and clean for a clog-free experience.', Icon: Trash2 },
+  { title: '36L/min Flow', text: '32mm or 40mm waste inlet/outlet with high flow.', Icon: Gauge },
+  { title: '6" Telescope', text: 'Flexible extension for the perfect fit.', Icon: MoveVertical },
 ]
 
 export const specs = [

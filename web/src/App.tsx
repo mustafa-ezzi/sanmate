@@ -1,5 +1,6 @@
 import { useLenis } from './hooks/useLenis'
-import { useCursorGlow } from './hooks/useCursorGlow'
+import { useCustomCursor } from './hooks/useCustomCursor'
+import { useScrollProgress } from './hooks/useScrollProgress'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import BrandStory from './components/BrandStory'
@@ -17,7 +18,8 @@ import Footer from './components/Footer'
 
 export default function App() {
   useLenis()
-  useCursorGlow()
+  useCustomCursor()
+  useScrollProgress()
 
   return (
     <div className="relative">

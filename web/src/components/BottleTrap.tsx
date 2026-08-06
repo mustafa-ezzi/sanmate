@@ -3,6 +3,8 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { images, bottleFeatures } from '../data'
+import Logo from './Logo'
+import FadeUp from './FadeUp'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -11,59 +13,61 @@ export default function BottleTrap() {
 
   useGSAP(
     () => {
-      gsap.from('.bt-reveal', {
-        scrollTrigger: { trigger: root.current, start: 'top 75%' },
-        y: 50,
-        opacity: 0,
-        duration: 0.9,
-        stagger: 0.1,
-        ease: 'power3.out',
-      })
-
-      gsap.fromTo(
-        '.bt-product',
-        { rotate: -6, scale: 0.96 },
-        {
-          scrollTrigger: {
-            trigger: '.bt-product',
-            start: 'top 85%',
-            end: 'center 40%',
-            scrub: 1,
+      const mm = gsap.matchMedia()
+      mm.add('(prefers-reduced-motion: no-preference)', () => {
+        gsap.fromTo(
+          '.bt-3d',
+          { rotateY: -25, rotateX: 8, scale: 0.92 },
+          {
+            rotateY: 25,
+            rotateX: -6,
+            scale: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.bt-3d',
+              start: 'top 85%',
+              end: 'bottom 30%',
+              scrub: 1,
+            },
           },
-          rotate: 8,
-          scale: 1,
-        },
-      )
+        )
 
-      gsap.to('.bt-reflect', {
-        scrollTrigger: {
-          trigger: '.bt-product',
-          start: 'top 70%',
-          end: 'bottom 30%',
-          scrub: true,
-        },
-        backgroundPosition: '120% 50%',
+        gsap.to('.bt-glow', {
+          opacity: 0.75,
+          scale: 1.2,
+          scrollTrigger: {
+            trigger: '.bt-3d',
+            start: 'top 80%',
+            end: 'center center',
+            scrub: true,
+          },
+        })
       })
     },
     { scope: root },
   )
 
   return (
-    <section id="bottle-trap" ref={root} className="py-[120px] md:py-[160px]">
-      <div className="max-w-7xl mx-auto px-6 md:px-10">
-        <div className="bt-reveal text-center max-w-2xl mx-auto mb-16">
-          <p className="text-navy tracking-[0.25em] text-xs uppercase font-semibold mb-4">
+    <section id="bottle-trap" ref={root} className="py-16 sm:py-24 md:py-[140px] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
+        <FadeUp className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+          <div className="flex justify-center mb-5">
+            <Logo href="" imgClassName="h-12 w-auto sm:h-14" />
+          </div>
+          <p className="text-accent tracking-[0.25em] text-[10px] sm:text-xs uppercase font-semibold mb-4">
             Product 02
           </p>
-          <h2 className="font-display text-4xl md:text-6xl text-ink mb-6">Bottle Trap</h2>
-          <p className="text-muted text-lg">
-            Adjustable, universal, and quietly premium — the under-basin companion that
-            keeps flow smooth and maintenance effortless.
+          <h2 className="font-display text-3xl sm:text-5xl md:text-6xl uppercase tracking-tight text-navy mb-5">
+            Bottle Trap
+          </h2>
+          <p className="text-muted text-base sm:text-lg">
+            Adjustable, universal, and quietly premium — scrub-linked 3D motion meets under-basin engineering.
           </p>
-        </div>
+        </FadeUp>
 
-        <div className="relative mb-20 flex justify-center">
-          <div className="bt-product bt-reflect chrome-shine relative w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)] bg-[linear-gradient(120deg,#f7f7f5_30%,#ffffff_50%,#e8ebef_70%)] bg-[length:200%_100%]">
+        <div className="relative flex justify-center mb-12 sm:mb-20" style={{ perspective: 1200 }}>
+          <div className="bt-glow absolute w-[70%] aspect-square max-w-md rounded-full bg-[radial-gradient(circle,rgba(232,96,28,0.18),transparent_70%)] blur-2xl opacity-40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <div className="bt-3d chrome-shine relative w-full max-w-sm sm:max-w-xl rounded-[2rem] overflow-hidden shadow-2xl will-change-transform bg-surface">
             <img
               src={images.bottleTrap}
               alt="SANMATE bottle trap"
@@ -72,25 +76,27 @@ export default function BottleTrap() {
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {bottleFeatures.map((f) => (
-            <div
-              key={f.title}
-              className="bt-reveal feature-card rounded-[24px] bg-surface border border-border p-7"
-            >
-              <h3 className="font-display font-semibold text-ink mb-2">{f.title}</h3>
-              <p className="text-sm text-muted leading-relaxed">{f.text}</p>
-            </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 mb-12 sm:mb-16">
+          {bottleFeatures.map((f, i) => (
+            <FadeUp key={f.title} delay={i * 0.06}>
+              <article className="hover-target h-full rounded-[2rem] bg-surface border border-border p-6 sm:p-7 transition-shadow duration-500 hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+                <div className="w-11 h-11 rounded-full bg-navy/10 text-navy flex items-center justify-center mb-4">
+                  <f.Icon size={20} strokeWidth={1.75} />
+                </div>
+                <h3 className="font-display font-bold uppercase tracking-tight text-ink mb-2">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-muted leading-relaxed">{f.text}</p>
+              </article>
+            </FadeUp>
           ))}
         </div>
 
-        <div className="bt-reveal rounded-[32px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)] max-w-4xl mx-auto">
-          <img
-            src={images.bottleFeatures}
-            alt="Bottle trap features"
-            className="w-full h-auto"
-          />
-        </div>
+        <FadeUp>
+          <div className="rounded-[2rem] overflow-hidden shadow-2xl max-w-4xl mx-auto">
+            <img src={images.bottleFeatures} alt="Bottle trap features" className="w-full h-auto" />
+          </div>
+        </FadeUp>
       </div>
     </section>
   )
