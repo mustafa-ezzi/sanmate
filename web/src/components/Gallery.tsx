@@ -1,42 +1,77 @@
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
 import { images } from '../data'
 import FadeUp from './FadeUp'
 
+gsap.registerPlugin(ScrollTrigger, useGSAP)
+
 const gallery = [
-  { src: images.marbleBath, tall: true, alt: 'White marble bathroom' },
-  { src: images.wasteFeaturesChrome, tall: false, alt: 'Chrome waste details' },
-  { src: images.luxuryBath, tall: false, alt: 'Luxury bathroom interior' },
-  { src: images.darkStone, tall: true, alt: 'Dark stone bathroom' },
-  { src: images.bottleFeatures2, tall: false, alt: 'Bottle trap lifestyle' },
-  { src: images.whiteSink, tall: false, alt: 'White marble sink' },
-  { src: images.hotelBath, tall: true, alt: 'Hotel bathroom suite' },
-  { src: images.wasteFeaturesWhite, tall: false, alt: 'ABS waste pipe' },
+  { src: images.marbleBath, alt: 'Marble bathroom' },
+  { src: images.wasteFeaturesChrome, alt: 'Chrome waste' },
+  { src: images.luxuryBath, alt: 'Luxury bath' },
+  { src: images.darkStone, alt: 'Dark stone' },
+  { src: images.bottleFeatures2, alt: 'Bottle trap' },
+  { src: images.whiteSink, alt: 'White sink' },
 ]
 
 export default function Gallery() {
+  const root = useRef<HTMLElement>(null)
+
+  useGSAP(
+    () => {
+      gsap.utils.toArray<HTMLElement>('.gal-img').forEach((img) => {
+        gsap.fromTo(
+          img,
+          { scale: 1.18 },
+          {
+            scale: 1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: img.parentElement,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: true,
+            },
+          },
+        )
+      })
+    },
+    { scope: root },
+  )
+
   return (
-    <section id="gallery" className="py-16 sm:py-24 md:py-[140px] bg-surface">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-        <FadeUp className="mb-10 sm:mb-16 max-w-2xl">
-          <p className="text-accent tracking-[0.25em] text-[10px] sm:text-xs uppercase font-semibold mb-4">
-            Gallery
-          </p>
-          <h2 className="font-display text-3xl sm:text-5xl md:text-6xl uppercase tracking-tight text-navy mb-4">
-            Bathroom inspiration
+    <section id="gallery" ref={root} className="section-pad bg-surface overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
+        <FadeUp className="mb-6 sm:mb-8">
+          <p className="text-accent tracking-[0.2em] text-[10px] uppercase font-semibold mb-2">Gallery</p>
+          <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-tight text-navy">
+            Inspiration
           </h2>
-          <p className="text-muted text-base sm:text-lg">
-            Spaces where SANMATE belongs — calm, luminous, and meticulously finished.
-          </p>
         </FadeUp>
 
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 sm:gap-5 space-y-4 sm:space-y-5">
+        {/* Mobile horizontal scroll with parallax images */}
+        <div className="h-scroll md:hidden -mx-4 px-4">
+          {gallery.map((g) => (
+            <div
+              key={g.alt}
+              className="gallery-item w-[78vw] max-w-[300px] aspect-[3/4] rounded-[1.5rem] overflow-hidden shadow-2xl"
+            >
+              <img src={g.src} alt={g.alt} className="gal-img w-full h-full object-cover will-change-transform" />
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:grid md:grid-cols-3 gap-4">
           {gallery.map((g, i) => (
-            <FadeUp key={g.src + g.alt} delay={(i % 3) * 0.06}>
+            <FadeUp key={g.alt} delay={(i % 3) * 0.05}>
               <div
-                className={`gallery-item hover-target break-inside-avoid overflow-hidden rounded-[2rem] shadow-2xl ${
-                  g.tall ? 'aspect-[3/4]' : 'aspect-[4/3]'
+                className={`gallery-item rounded-[1.75rem] overflow-hidden shadow-2xl ${
+                  i === 0 || i === 3 ? 'aspect-[3/4]' : 'aspect-[4/3]'
                 }`}
               >
-                <img src={g.src} alt={g.alt} className="w-full h-full object-cover" loading="lazy" />
+                <img src={g.src} alt={g.alt} className="gal-img w-full h-full object-cover will-change-transform" loading="lazy" />
               </div>
             </FadeUp>
           ))}

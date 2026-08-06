@@ -3,14 +3,11 @@ import { useCustomCursor } from './hooks/useCustomCursor'
 import { useScrollProgress } from './hooks/useScrollProgress'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import BrandStory from './components/BrandStory'
+import BuyProducts from './components/BuyProducts'
 import WastePipe from './components/WastePipe'
 import BottleTrap from './components/BottleTrap'
-import Materials from './components/Materials'
 import Features from './components/Features'
 import Gallery from './components/Gallery'
-import Applications from './components/Applications'
-import Installation from './components/Installation'
 import Specifications from './components/Specifications'
 import FAQ from './components/FAQ'
 import Contact from './components/Contact'
@@ -26,14 +23,11 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <BrandStory />
+        <BuyProducts />
         <WastePipe />
         <BottleTrap />
-        <Materials />
         <Features />
         <Gallery />
-        <Applications />
-        <Installation />
         <Specifications />
         <FAQ />
         <Contact />

@@ -3,18 +3,17 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { Sparkles, Shield, CheckCircle2, Gem, Wrench, Layers } from 'lucide-react'
-import Logo from './Logo'
 import FadeUp from './FadeUp'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 const features = [
-  { title: 'Precision Engineered', text: 'Tight tolerances. Clean lines. Silent performance.', Icon: Sparkles },
-  { title: 'Corrosion Resistant', text: 'Chrome and ABS that stay beautiful for years.', Icon: Shield },
-  { title: 'Leak Tested', text: 'Every seal verified before it leaves the line.', Icon: CheckCircle2 },
-  { title: 'Mirror Finish', text: 'A chrome surface that reflects premium spaces.', Icon: Gem },
-  { title: 'Easy Installation', text: 'Designed for speed under basins and vanities.', Icon: Wrench },
-  { title: 'Premium Brass & ABS', text: 'Materials chosen for strength and longevity.', Icon: Layers },
+  { title: 'Precision Engineered', text: 'Tight tolerances. Silent performance.', Icon: Sparkles },
+  { title: 'Corrosion Resistant', text: 'Chrome & ABS built to last.', Icon: Shield },
+  { title: 'Leak Tested', text: 'Every seal factory verified.', Icon: CheckCircle2 },
+  { title: 'Mirror Finish', text: 'Premium chrome that shines.', Icon: Gem },
+  { title: 'Easy Install', text: 'Fast fit under any vanity.', Icon: Wrench },
+  { title: 'Premium Materials', text: 'ABS strength. Chrome beauty.', Icon: Layers },
 ]
 
 export default function Features() {
@@ -24,15 +23,16 @@ export default function Features() {
   useGSAP(
     () => {
       const mm = gsap.matchMedia()
+      // Desktop pin scrub
       mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
         const cards = gsap.utils.toArray<HTMLElement>('.h-card')
         gsap.to(cards, {
-          xPercent: -100 * (cards.length - 1.2),
+          xPercent: -100 * (cards.length - 1.25),
           ease: 'none',
           scrollTrigger: {
             trigger: root.current,
             start: 'top top',
-            end: () => `+=${(track.current?.scrollWidth || 2000) * 0.8}`,
+            end: () => `+=${(track.current?.scrollWidth || 1600) * 0.7}`,
             pin: true,
             scrub: 1,
             anticipatePin: 1,
@@ -45,39 +45,54 @@ export default function Features() {
 
   return (
     <section id="features" ref={root} className="relative bg-bg overflow-hidden">
-      <div className="md:min-h-screen md:flex md:flex-col md:justify-center py-16 sm:py-24 md:py-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 mb-8 md:mb-14">
+      <div className="md:min-h-screen md:flex md:flex-col md:justify-center section-pad md:py-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mb-6 md:mb-10">
           <FadeUp>
-            <Logo href="" imgClassName="h-12 w-auto mb-5" />
-            <p className="text-accent tracking-[0.25em] text-[10px] sm:text-xs uppercase font-semibold mb-4">
-              Features
-            </p>
-            <h2 className="font-display text-3xl sm:text-5xl md:text-6xl uppercase tracking-tight text-navy">
-              Designed to disappear.
-              <br />
-              <span className="text-ink">Built to perform.</span>
+            <p className="text-accent tracking-[0.2em] text-[10px] uppercase font-semibold mb-2">Features</p>
+            <h2 className="font-display text-2xl sm:text-4xl uppercase tracking-tight text-navy">
+              Built to perform
             </h2>
           </FadeUp>
         </div>
 
-        <div ref={track} className="flex flex-col md:flex-row gap-4 sm:gap-5 px-4 sm:px-6 md:px-10 md:w-max">
+        {/* Mobile: swipe carousel */}
+        <div className="h-scroll md:hidden px-4 -mx-0">
           {features.map((f, i) => (
             <article
               key={f.title}
-              className="h-card hover-target shrink-0 w-full md:w-[360px] rounded-[2rem] bg-surface border border-border p-7 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.04)]"
+              className="w-[78vw] max-w-[280px] rounded-[1.5rem] bg-surface border border-border p-6 shadow-[0_12px_40px_rgba(27,29,99,0.06)]"
             >
-              <div className="flex items-center justify-between mb-8">
-                <div className="w-12 h-12 rounded-full bg-navy text-white flex items-center justify-center">
-                  <f.Icon size={22} strokeWidth={1.75} />
+              <div className="flex items-center justify-between mb-5">
+                <div className="w-11 h-11 rounded-full bg-navy text-white flex items-center justify-center">
+                  <f.Icon size={18} />
+                </div>
+                <span className="text-chrome font-display text-3xl font-extrabold">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+              </div>
+              <h3 className="font-display text-lg uppercase tracking-tight text-ink mb-2">{f.title}</h3>
+              <p className="text-muted text-sm leading-relaxed">{f.text}</p>
+            </article>
+          ))}
+        </div>
+
+        {/* Desktop: pinned horizontal */}
+        <div ref={track} className="hidden md:flex md:flex-row gap-4 px-8 md:w-max">
+          {features.map((f, i) => (
+            <article
+              key={f.title}
+              className="h-card shrink-0 w-[320px] rounded-[1.75rem] bg-surface border border-border p-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-11 h-11 rounded-full bg-navy text-white flex items-center justify-center">
+                  <f.Icon size={20} />
                 </div>
                 <span className="text-chrome font-display text-4xl font-extrabold">
                   {String(i + 1).padStart(2, '0')}
                 </span>
               </div>
-              <h3 className="font-display text-xl sm:text-2xl uppercase tracking-tight text-ink mb-3">
-                {f.title}
-              </h3>
-              <p className="text-muted leading-relaxed text-sm sm:text-base">{f.text}</p>
+              <h3 className="font-display text-xl uppercase tracking-tight text-ink mb-2">{f.title}</h3>
+              <p className="text-muted text-sm leading-relaxed">{f.text}</p>
             </article>
           ))}
         </div>
