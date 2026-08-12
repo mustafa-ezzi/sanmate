@@ -1,58 +1,67 @@
-import { useState } from 'react'
-import { useLenis } from './hooks/useLenis'
-import { useCustomCursor } from './hooks/useCustomCursor'
-import { useScrollProgress } from './hooks/useScrollProgress'
-import SplashLoader from './components/SplashLoader'
-import Navbar from './components/Navbar'
-import ProductElevate from './components/ProductElevate'
-import BuyProducts from './components/BuyProducts'
-import WastePipe from './components/WastePipe'
-import BottleTrap from './components/BottleTrap'
-import Features from './components/Features'
-import Gallery from './components/Gallery'
-import Specifications from './components/Specifications'
-import FAQ from './components/FAQ'
-import Contact from './components/Contact'
-import Footer from './components/Footer'
+import { useEffect } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { api } from './api/client'
+import Layout from './components/layout/Layout'
+import { initGA } from './lib/ga'
+import AdminLayout from './admin/AdminLayout'
+import BannersPage from './admin/pages/BannersPage'
+import CategoriesPage from './admin/pages/CategoriesPage'
+import DashboardPage from './admin/pages/DashboardPage'
+import LoginPage from './admin/pages/LoginPage'
+import OrdersPage from './admin/pages/OrdersPage'
+import PoliciesPage from './admin/pages/PoliciesPage'
+import ProductsAdminPage from './admin/pages/ProductsPage'
+import SettingsPage from './admin/pages/SettingsPage'
+import BrandPage from './pages/BrandPage'
+import CartPage from './pages/CartPage'
+import CheckoutPage from './pages/CheckoutPage'
+import HomePage from './pages/HomePage'
+import PolicyPage from './pages/PolicyPage'
+import ProductDetailPage from './pages/ProductDetailPage'
+import ProductsPage from './pages/ProductsPage'
 
 export default function App() {
-  const [splashDone, setSplashDone] = useState(false)
-  const [booted, setBooted] = useState(false)
-
-  useLenis()
-  useCustomCursor()
-  useScrollProgress()
+  useEffect(() => {
+    const envGa = import.meta.env.VITE_GA_MEASUREMENT_ID
+    if (envGa) {
+      initGA(envGa)
+      return
+    }
+    api
+      .company()
+      .then((c) => {
+        if (c.settings?.ga_measurement_id) {
+          initGA(c.settings.ga_measurement_id)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   return (
-    <div className="relative">
-      {!booted && (
-        <SplashLoader
-          onDone={() => {
-            setBooted(true)
-            setSplashDone(true)
-          }}
-        />
-      )}
+    <BrowserRouter>
+      <Routes>
+        <Route path="admin/login" element={<LoginPage />} />
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="products" element={<ProductsAdminPage />} />
+          <Route path="banners" element={<BannersPage />} />
+          <Route path="policies" element={<PoliciesPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
 
-      <div
-        className={`transition-opacity duration-500 ${
-          splashDone ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
-        <Navbar />
-        <main>
-          <ProductElevate active={splashDone} />
-          <BuyProducts />
-          <WastePipe />
-          <BottleTrap />
-          <Features />
-          <Gallery />
-          <Specifications />
-          <FAQ />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
-    </div>
+        <Route element={<Layout />}>
+          <Route index element={<HomePage />} />
+          <Route path="brands/:slug" element={<BrandPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="products/:slug" element={<ProductDetailPage />} />
+          <Route path="cart" element={<CartPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="policies/:type" element={<PolicyPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
