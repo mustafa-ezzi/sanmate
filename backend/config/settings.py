@@ -158,7 +158,20 @@ CF_R2_SECRET_ACCESS_KEY = os.getenv("CF_R2_SECRET_ACCESS_KEY", "") or os.getenv(
     "AWS_SECRET_ACCESS_KEY", ""
 )
 
-# Paysafe — separate merchant accounts per company
+# Rapid Gateway (Pakistan) — https://rapidgateway.pk/
+RAPID_GATEWAY_ENV = os.getenv("RAPID_GATEWAY_ENV", "test")
+RAPID_GATEWAY_SECRET_KEY = os.getenv("RAPID_GATEWAY_SECRET_KEY", "") or os.getenv(
+    "RG_SECRET_KEY", ""
+)
+RAPID_GATEWAY_PUBLIC_KEY = os.getenv("RAPID_GATEWAY_PUBLIC_KEY", "")
+RAPID_GATEWAY_MERCHANT_ID = os.getenv("RAPID_GATEWAY_MERCHANT_ID", "")
+RAPID_GATEWAY_API_BASE = os.getenv(
+    "RAPID_GATEWAY_API_BASE",
+    "https://api.rapidgateway.pk/v1",
+)
+RAPID_GATEWAY_WEBHOOK_SECRET = os.getenv("RAPID_GATEWAY_WEBHOOK_SECRET", "")
+
+# Legacy Paysafe env (unused — kept so old Railway vars do not crash imports)
 PAYSAFE_ENV = os.getenv("PAYSAFE_ENV", "test")
 PAYSAFE_WEBHOOK_SECRET = os.getenv("PAYSAFE_WEBHOOK_SECRET", "")
 PAYSAFE_COMPANY_KEYS = {

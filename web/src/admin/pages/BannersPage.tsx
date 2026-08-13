@@ -124,7 +124,8 @@ export default function BannersPage() {
           onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
         />
         <ImageUploadField
-          label="Banner image"
+          label="Homepage hero banner"
+          shownOn="This is the full-screen image on the first homepage carousel slide. Use a wide, dark lifestyle photo (desktop and mobile)."
           value={form.image_url}
           onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
         />
@@ -250,7 +251,8 @@ export default function BannersPage() {
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <ImageUploadField
-                  label="Poster image"
+                  label={`Carousel poster ${index + 1}`}
+                  shownOn="Shown as a homepage hero carousel slide (full-screen). Caption and link appear over this image."
                   value={slide.image_url}
                   onChange={(url) =>
                     setSlides((all) =>

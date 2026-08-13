@@ -2,7 +2,7 @@
 
 Copy `backend/.env.example` to `backend/.env` (local) and paste the same keys into **Railway → your backend service → Variables**. Never commit real secrets.
 
-This project currently uses **SAMS only**. Fill the `PAYSAFE_SAMS_*` and `WHATSAPP_*` values. The `*_AM_*` keys can stay empty.
+This project currently uses **SAMS only**. Fill the `RAPID_GATEWAY_*` and `WHATSAPP_*` values.
 
 ---
 
@@ -194,87 +194,124 @@ Restart Django. Admin → Settings should show **Cloud API credentials detected*
 
 ---
 
-## 3. Paysafe (checkout)
+## 3. Rapid Gateway (checkout)
 
-**What they do:** Customer pays on checkout. SAMS uses **its own** Paysafe merchant account (`PAYSAFE_SAMS_*`). Without these keys and with `DJANGO_DEBUG=True`, checkout uses the **simulate** endpoint (fake paid, useful in local dev).
+**What they do:** Customer pays on checkout. SAMS uses **[Rapid Gateway](https://rapidgateway.pk/)** — one Pakistan payment gateway for cards (Visa / Mastercard / PayPak), JazzCash, easypaisa, Raast, and bank transfer. Without keys and with `DJANGO_DEBUG=True`, checkout can use a **simulate** path for local testing.
 
-You need a Paysafe merchant / partner account. Start at [https://www.paysafe.com](https://www.paysafe.com) or the portal they gave you:
+Rapid Gateway is SBP-licensed; you do not need separate JazzCash/easypaisa merchant contracts.
 
-- Test: [https://developer.paysafe.com](https://developer.paysafe.com) and the **Paysafe Back Office (test)**  
-- Live: production Back Office (Paysafe emails this after go-live)
+### Get an account & keys
 
-### `PAYSAFE_ENV`
+1. Go to [https://rapidgateway.pk/](https://rapidgateway.pk/) → **Request Sandbox Access** / contact sales, or call **+92 315 4020909**.
+2. Complete a short onboarding call + KYC (CNIC for sole prop, NTN/incorporation for companies).
+3. **Sandbox** secret key is emailed the same day — use this while building.
+4. **Live** secret key is issued after KYC (often within about an hour).
+5. Full API schemas ship with your sandbox kit (they do not publish live secrets publicly).
 
-- Local / staging: `test`
+Useful links:
+
+- Gateway overview: [Payment Gateway Pakistan](https://rapidgateway.pk/payment-gateway-pakistan)
+- JazzCash / easypaisa guide: [Integrate JazzCash & easypaisa](https://rapidgateway.pk/resources/integrate-jazzcash-easypaisa-pakistan)
+- Webhooks: [Payment Webhooks Guide](https://rapidgateway.pk/resources/payment-webhooks-guide)
+
+### `RAPID_GATEWAY_ENV`
+
+- Local / staging: `test` (sandbox)
 - Production: `live`
 
 ```env
-PAYSAFE_ENV=test
+RAPID_GATEWAY_ENV=test
 ```
 
-### `PAYSAFE_SAMS_API_KEY`
+### `RAPID_GATEWAY_SECRET_KEY`
 
-Server-side secret used to process payments.
+Server-side Bearer token used to create payments (`Authorization: Bearer …`).
 
-1. Log in to **Paysafe Back Office** (test or live).
-2. Open **Settings → API Keys** (sometimes **Developer → API Keys** or **Business Portal → Integrations**).
-3. Copy the **Private / Secret API key** (often looks like `private-xxxxx` or a long Base64 string).
+1. After onboarding, open the Rapid Gateway merchant portal / email kit.
+2. Copy the **Secret key** (sandbox first, then live).
+3. Never put this in the frontend or commit it to git.
 
-`PAYSAFE_SAMS_API_KEY=...`
+```env
+RAPID_GATEWAY_SECRET_KEY=sk_test_xxxxxxxx
+```
 
-Never expose this in the frontend.
+(Their docs sometimes call this `RG_SECRET_KEY` — same value.)
 
-### `PAYSAFE_SAMS_PUBLIC_KEY`
+### `RAPID_GATEWAY_PUBLIC_KEY` (optional)
 
-Used by the browser checkout (Paysafe.js / Checkout).
+Some dashboard / client widgets show a public key. If Rapid gives you one, store it here. Checkout that only uses the server `POST /v1/payments` flow may leave this empty.
 
-Same API Keys page → copy the **Public API key**.
+```env
+RAPID_GATEWAY_PUBLIC_KEY=
+```
 
-`PAYSAFE_SAMS_PUBLIC_KEY=...`
+### `RAPID_GATEWAY_MERCHANT_ID` (optional)
 
-### `PAYSAFE_SAMS_ACCOUNT_ID`
+If the portal shows a merchant / account ID for SAMS, save it for reference (and admin Settings). Not always required for the Bearer API call.
 
-The merchant **account number** that receives the money (not the API key).
+```env
+RAPID_GATEWAY_MERCHANT_ID=
+```
 
-1. Back Office → **Accounts** / **Business accounts** / **Settings**.
-2. Copy the **Account ID** / **Account number** (digits).
+### `RAPID_GATEWAY_API_BASE`
 
-`PAYSAFE_SAMS_ACCOUNT_ID=100xxxxxx`
+Default production API:
 
-If you have several accounts (cards vs wallets), use the one enabled for this storefront.
+```env
+RAPID_GATEWAY_API_BASE=https://api.rapidgateway.pk/v1
+```
 
-### `PAYSAFE_WEBHOOK_SECRET`
+Only change this if Rapid gives you a different sandbox base URL in your kit.
 
-Paysafe calls your backend when payment status changes.
+### `RAPID_GATEWAY_WEBHOOK_SECRET`
 
-1. Back Office → **Developer → Webhooks** (or **Notifications**).
-2. Create a webhook pointing at:
+Rapid POSTs signed JSON when a payment completes / fails / is refunded.
 
-`https://YOUR-RAILWAY-BACKEND-HOST/api/v1/sams/payments/paysafe/webhook/`
+1. Portal → **Developers → Webhooks** (or **Settings → Webhooks**).
+2. Register your webhook URL:
 
-(Exact path must match production; confirm in `backend/config/urls.py` / payments URLs if you change routing.)
+`https://YOUR-RAILWAY-BACKEND-HOST/api/v1/webhooks/rapid-gateway/`
 
-3. Copy the **webhook signing secret / HMAC key**.
+3. Copy the **webhook salt / signing secret**.
 
-`PAYSAFE_WEBHOOK_SECRET=...`
+```env
+RAPID_GATEWAY_WEBHOOK_SECRET=your-webhook-salt
+```
 
-If Paysafe has not issued a webhook secret yet, leave it empty for test simulate-only; set it before live payments.
+Signature (from their guide): HMAC-SHA256 over `timestamp + "." + rawBody`, hex uppercase, header `X-RapidGateway-Signature`. Also check `X-RapidGateway-Timestamp` (reject if skew > 5 minutes).
 
-### `PAYSAFE_AM_*`
+### Typical create-payment shape (for reference)
 
-Leave empty. Admin is SAMS-only; AM keys are unused.
+```http
+POST https://api.rapidgateway.pk/v1/payments
+Authorization: Bearer <RAPID_GATEWAY_SECRET_KEY>
+Content-Type: application/json
+Idempotency-Key: <order_number>
+
+{
+  "amount": 4250,
+  "currency": "PKR",
+  "methods": ["easypaisa", "jazzcash", "card"],
+  "customer": { "phone": "+923XXXXXXXXX" },
+  "return_url": "https://yourstore.pk/checkout?order=SAMS-…",
+  "webhook_url": "https://YOUR-BACKEND/api/v1/webhooks/rapid-gateway/"
+}
+```
+
+Response includes `checkout_url` — redirect the customer there to pay.
 
 ### Checklist (SAMS)
 
 ```env
-PAYSAFE_ENV=test
-PAYSAFE_SAMS_API_KEY=your-private-api-key
-PAYSAFE_SAMS_PUBLIC_KEY=your-public-api-key
-PAYSAFE_SAMS_ACCOUNT_ID=100xxxxxx
-PAYSAFE_WEBHOOK_SECRET=your-webhook-secret
+RAPID_GATEWAY_ENV=test
+RAPID_GATEWAY_SECRET_KEY=sk_test_xxxxxxxx
+RAPID_GATEWAY_PUBLIC_KEY=
+RAPID_GATEWAY_MERCHANT_ID=
+RAPID_GATEWAY_API_BASE=https://api.rapidgateway.pk/v1
+RAPID_GATEWAY_WEBHOOK_SECRET=your-webhook-salt
 ```
 
-After keys are set, restart Django. Checkout should stop using simulate (unless keys are still blank).
+After keys are set, restart Django. Checkout should stop using simulate (unless the secret key is still blank).
 
 ---
 
@@ -292,7 +329,7 @@ After keys are set, restart Django. Checkout should stop using simulate (unless 
 2. Add the same keys (do not wrap values in quotes unless the value itself contains spaces).
 3. Redeploy / restart the service.
 
-Frontend (`web/.env`) does **not** need R2, WhatsApp, or Paysafe secrets. Images load from the URL the API already stored.
+Frontend (`web/.env`) does **not** need R2, WhatsApp, or Rapid Gateway secrets. Images load from the URL the API already stored.
 
 ---
 
@@ -302,6 +339,6 @@ Frontend (`web/.env`) does **not** need R2, WhatsApp, or Paysafe secrets. Images
 | --- | --- |
 | R2 | Admin → Settings shows R2 connected. Upload a product image; URL starts with `CF_MEDIA_BASE_URL`. |
 | WhatsApp | Admin → Settings shows Cloud API detected. Resend on an order; phone receives the template (or Meta error in the toast). |
-| Paysafe | Checkout no longer says simulate. Test card from Paysafe docs works in `PAYSAFE_ENV=test`. |
+| Rapid Gateway | Secret key set → checkout creates a payment and redirects to Rapid `checkout_url`. Webhook marks the order paid. |
 
-If something fails, the admin toast / Django logs usually include Meta HTTP errors or R2 `AccessDenied` (wrong keys or bucket name).
+If something fails, the admin toast / Django logs usually include Meta HTTP errors, R2 `AccessDenied`, or Rapid Gateway 401 (bad secret key).

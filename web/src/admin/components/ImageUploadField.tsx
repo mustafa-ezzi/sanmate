@@ -4,12 +4,18 @@ import { adminApi } from '../api'
 
 type Props = {
   label: string
+  shownOn: string
   value: string
   onChange: (url: string) => void
 }
 
 /** File picker → upload → stores returned URL in parent form (DB field). */
-export default function ImageUploadField({ label, value, onChange }: Props) {
+export default function ImageUploadField({
+  label,
+  shownOn,
+  value,
+  onChange,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -31,7 +37,10 @@ export default function ImageUploadField({ label, value, onChange }: Props) {
 
   return (
     <div className="sm:col-span-2 space-y-2">
-      <p className="text-sm font-medium text-slate-700">{label}</p>
+      <div>
+        <p className="text-sm font-medium text-slate-700">{label}</p>
+        <p className="mt-0.5 text-xs text-slate-500">{shownOn}</p>
+      </div>
       <div className="flex flex-wrap items-start gap-4">
         <div className="h-24 w-24 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center text-xs text-slate-400">
           {value ? (
@@ -52,8 +61,8 @@ export default function ImageUploadField({ label, value, onChange }: Props) {
           <p className="flex items-center gap-1.5 text-xs text-slate-500">
             <ImagePlus size={13} />
             {uploading
-              ? 'Uploading to Cloudflare R2 (or local media in dev)…'
-              : 'Upload an image — the public URL is saved in the database and used on the storefront.'}
+              ? 'Uploading… this image will appear on the storefront once saved.'
+              : 'Choose a file. After upload, this picture is what customers see in the place described above.'}
           </p>
           {value && (
             <button
@@ -70,3 +79,4 @@ export default function ImageUploadField({ label, value, onChange }: Props) {
     </div>
   )
 }
+

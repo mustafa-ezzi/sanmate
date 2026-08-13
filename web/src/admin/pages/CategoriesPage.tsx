@@ -84,11 +84,13 @@ export default function CategoriesPage() {
         />
         <ImageUploadField
           label="Brand logo"
+          shownOn="Shown on the brand page header and as the small thumbnail in this admin list."
           value={form.logo_url}
           onChange={(url) => setForm((f) => ({ ...f, logo_url: url }))}
         />
         <ImageUploadField
-          label="Hero image"
+          label="Brand hero image"
+          shownOn="Displayed on the homepage hero carousel, the brand collection card, and the top of the brand page (e.g. /brands/sanmate)."
           value={form.hero_image_url}
           onChange={(url) => setForm((f) => ({ ...f, hero_image_url: url }))}
         />

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def mark_order_paid(
     order: Order,
     *,
-    paysafe_payment_id: str = "",
+    provider_payment_id: str = "",
     event_type: str = "payment.completed",
     payload: dict | None = None,
 ) -> Order:
@@ -26,13 +26,13 @@ def mark_order_paid(
     if not already_paid:
         order.payment_status = Order.PaymentStatus.PAID
         order.status = Order.Status.PAID
-        if paysafe_payment_id:
-            order.paysafe_payment_id = paysafe_payment_id
+        if provider_payment_id:
+            order.provider_payment_id = provider_payment_id
         order.save(
             update_fields=[
                 "payment_status",
                 "status",
-                "paysafe_payment_id",
+                "provider_payment_id",
                 "updated_at",
             ]
         )
@@ -40,9 +40,9 @@ def mark_order_paid(
     PaymentEvent.objects.create(
         company=order.company,
         order=order,
-        provider="paysafe",
+        provider="paypak",
         event_type=event_type,
-        external_id=paysafe_payment_id or order.paysafe_payment_id,
+        external_id=provider_payment_id or order.provider_payment_id,
         payload=payload or {},
     )
 
@@ -69,7 +69,7 @@ def mark_order_failed(
     PaymentEvent.objects.create(
         company=order.company,
         order=order,
-        provider="paysafe",
+        provider="paypak",
         event_type=event_type,
         payload=payload or {},
     )

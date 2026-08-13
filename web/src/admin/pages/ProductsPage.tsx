@@ -181,7 +181,8 @@ export default function ProductsAdminPage() {
           }
         />
         <ImageUploadField
-          label="Product image"
+          label="Product photo"
+          shownOn="Displayed on the product card (shop, homepage rail, brand pages) and as the main image on the product detail page."
           value={form.image_url}
           onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
         />

@@ -6,12 +6,12 @@ from rest_framework.views import APIView
 from orders.models import Order
 from orders.serializers import OrderSerializer
 from payments.models import PaymentEvent
-from payments.paysafe import (
-    PaysafeError,
+from payments.paypak import (
+    PayPakError,
     get_company_keys,
+    initiate_payment,
     is_configured,
-    process_payment,
-    verify_webhook_signature,
+    verify_ipn_signature,
 )
 from payments.services import mark_order_failed, mark_order_paid
 
@@ -32,7 +32,11 @@ def _company_or_404(company_slug):
     return company, None
 
 
-class PaysafeConfigView(APIView):
+def _absolute(request, path: str) -> str:
+    return request.build_absolute_uri(path)
+
+
+class PayPakConfigView(APIView):
     """Public checkout config for the active company (no secrets)."""
 
     def get(self, request, company_slug):
@@ -45,24 +49,24 @@ class PaysafeConfigView(APIView):
         return Response(
             {
                 "company": company_slug,
-                "env": settings.PAYSAFE_ENV,
+                "provider": "paypak",
+                "env": settings.PAYPAK_ENV,
                 "currency": getattr(
                     getattr(company, "settings", None),
                     "currency",
                     "PKR",
                 ),
-                "public_key": keys["public_key"] if configured else "",
-                "account_id": keys["account_id"] if configured else "",
+                "merchant_id": keys["merchant_id"] if configured else "",
                 "configured": configured,
                 "simulate_allowed": simulate,
             }
         )
 
 
-class PaysafeProcessPaymentView(APIView):
+class PayPakInitiateView(APIView):
     """
-    After Paysafe Checkout returns paymentHandleToken,
-    charge via Payments API and mark order paid → WhatsApp.
+    Create a PayPak checkout session and return redirect URL.
+    Frontend should send the browser to checkout_url.
     """
 
     def post(self, request, company_slug):
@@ -71,10 +75,9 @@ class PaysafeProcessPaymentView(APIView):
             return err
 
         order_number = (request.data.get("order_number") or "").strip()
-        handle = (request.data.get("payment_handle_token") or "").strip()
-        if not order_number or not handle:
+        if not order_number:
             return Response(
-                {"detail": "order_number and payment_handle_token are required."},
+                {"detail": "order_number is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -96,77 +99,74 @@ class PaysafeProcessPaymentView(APIView):
         if not is_configured(company_slug):
             return Response(
                 {
-                    "detail": "Paysafe not configured. Use simulate endpoint in DEBUG.",
+                    "detail": "PayPak not configured. Use simulate endpoint in DEBUG.",
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+        storefront = (
+            (getattr(settings, "PAYPAK_STOREFRONT_BASE", "") or "").rstrip("/")
+            or request.headers.get("Origin")
+            or "http://localhost:5173"
+        )
+        return_url = f"{storefront}/checkout/return?order={order.order_number}"
+        cancel_url = f"{storefront}/checkout?cancelled=1&order={order.order_number}"
+        ipn_url = _absolute(request, "/api/v1/webhooks/paypak/")
 
         order.payment_status = Order.PaymentStatus.PENDING
         order.save(update_fields=["payment_status", "updated_at"])
 
         try:
-            result = process_payment(
+            result = initiate_payment(
                 company_slug=company_slug,
-                merchant_ref=order.order_number,
+                order_number=order.order_number,
                 amount=order.total,
                 currency=order.currency or "PKR",
-                payment_handle_token=handle,
+                customer_name=order.customer_name,
+                customer_email=order.customer_email or "",
+                customer_phone=order.customer_phone or "",
                 description=f"{company.name} order {order.order_number}",
+                return_url=return_url,
+                cancel_url=cancel_url,
+                ipn_url=ipn_url,
             )
-        except PaysafeError as exc:
+        except PayPakError as exc:
             mark_order_failed(
                 order,
                 event_type="payment.failed",
                 payload={"error": str(exc), "body": exc.payload},
             )
             return Response(
-                {"detail": str(exc), "paysafe": exc.payload},
+                {"detail": str(exc), "paypak": exc.payload},
                 status=status.HTTP_402_PAYMENT_REQUIRED,
             )
 
-        payment_status = (result.get("status") or "").upper()
-        payment_id = str(result.get("id") or "")
+        payment_id = result.get("transaction_id") or ""
+        if payment_id:
+            order.provider_payment_id = payment_id
+            order.save(update_fields=["provider_payment_id", "updated_at"])
 
-        if payment_status in ("COMPLETED", "RECEIVED", "PENDING", "HELD"):
-            # COMPLETED / RECEIVED = success; PENDING may settle via webhook
-            if payment_status in ("COMPLETED", "RECEIVED"):
-                order = mark_order_paid(
-                    order,
-                    paysafe_payment_id=payment_id,
-                    event_type="payment.completed",
-                    payload=result,
-                )
-            else:
-                PaymentEvent.objects.create(
-                    company=company,
-                    order=order,
-                    provider="paysafe",
-                    event_type=f"payment.{payment_status.lower()}",
-                    external_id=payment_id,
-                    payload=result,
-                )
-                order.paysafe_payment_id = payment_id
-                order.save(update_fields=["paysafe_payment_id", "updated_at"])
-            return Response(
-                {
-                    "status": payment_status,
-                    "payment_id": payment_id,
-                    "order": OrderSerializer(order).data,
-                }
-            )
+        PaymentEvent.objects.create(
+            company=company,
+            order=order,
+            provider="paypak",
+            event_type="payment.initiated",
+            external_id=payment_id,
+            payload=result.get("raw") or result,
+        )
 
-        mark_order_failed(order, event_type="payment.declined", payload=result)
         return Response(
-            {"detail": "Payment not completed.", "paysafe": result},
-            status=status.HTTP_402_PAYMENT_REQUIRED,
+            {
+                "status": "PENDING",
+                "checkout_url": result["checkout_url"],
+                "payment_id": payment_id,
+                "order": OrderSerializer(order).data,
+            }
         )
 
 
-class PaysafeSimulatePaymentView(APIView):
-    """
-    Local/dev only: mark order paid without Paysafe keys.
-    Enabled when DEBUG=True and company has no Paysafe API key.
-    """
+class PayPakSimulatePaymentView(APIView):
+    """DEBUG only: mark order paid without PayPak keys."""
 
     def post(self, request, company_slug):
         company, err = _company_or_404(company_slug)
@@ -189,9 +189,9 @@ class PaysafeSimulatePaymentView(APIView):
 
         order = mark_order_paid(
             order,
-            paysafe_payment_id=f"sim_{order.order_number}",
+            provider_payment_id=f"sim_{order.order_number}",
             event_type="payment.simulated",
-            payload={"mode": "simulate"},
+            payload={"mode": "simulate", "provider": "paypak"},
         )
         return Response(
             {
@@ -202,65 +202,93 @@ class PaysafeSimulatePaymentView(APIView):
         )
 
 
-class PaysafeWebhookView(APIView):
+class PayPakOrderStatusView(APIView):
+    """Storefront polls this after returning from PayPak checkout."""
+
+    def get(self, request, company_slug, order_number):
+        company, err = _company_or_404(company_slug)
+        if err:
+            return err
+        order = Order.objects.filter(
+            company=company,
+            order_number=order_number,
+        ).first()
+        if not order:
+            return Response({"detail": "Order not found."}, status=404)
+        return Response({"order": OrderSerializer(order).data})
+
+
+class PayPakWebhookView(APIView):
+    """IPN / webhook from PayPak — marks order paid and triggers WhatsApp."""
+
     authentication_classes = []
     permission_classes = []
 
     def post(self, request):
-        raw = request.body
-        sig = request.headers.get("X-Paysafe-Signature") or request.headers.get(
-            "Signature",
-            "",
+        payload = request.data if isinstance(request.data, dict) else {}
+        sig = (
+            request.headers.get("X-PayPak-Signature")
+            or request.headers.get("X-Signature")
+            or str(payload.get("signature") or "")
         )
-        if not verify_webhook_signature(raw, sig):
+        if not verify_ipn_signature(payload, sig):
             return Response({"detail": "Invalid signature."}, status=401)
 
-        payload = request.data if isinstance(request.data, dict) else {}
-        merchant_ref = (
+        merchant_ref = str(
             payload.get("merchantRefNum")
-            or (payload.get("payload") or {}).get("merchantRefNum")
+            or payload.get("merchant_ref")
+            or payload.get("order_number")
+            or payload.get("orderId")
             or ""
         )
         payment_id = str(
-            payload.get("id")
-            or (payload.get("payload") or {}).get("id")
+            payload.get("transactionId")
+            or payload.get("transaction_id")
+            or payload.get("id")
             or ""
         )
-        event = str(payload.get("eventType") or payload.get("type") or "").upper()
-        event_type = str(
-            payload.get("eventType") or payload.get("type") or "webhook"
-        )
+        event = str(
+            payload.get("status")
+            or payload.get("eventType")
+            or payload.get("event_type")
+            or ""
+        ).upper()
+        event_type = str(payload.get("eventType") or payload.get("status") or "webhook")
 
         order = None
         if merchant_ref:
-            order = Order.objects.filter(order_number=merchant_ref).select_related(
-                "company"
-            ).first()
+            order = (
+                Order.objects.filter(order_number=merchant_ref)
+                .select_related("company")
+                .first()
+            )
 
         if order:
             PaymentEvent.objects.create(
                 company=order.company,
                 order=order,
-                provider="paysafe",
+                provider="paypak",
                 event_type=event_type,
                 external_id=payment_id,
                 payload=payload,
             )
-            if any(x in event for x in ("COMPLETED", "SETTLED", "PAID", "SUCCESS")):
+            if any(
+                x in event
+                for x in ("COMPLETED", "SETTLED", "PAID", "SUCCESS", "APPROVED")
+            ):
                 mark_order_paid(
                     order,
-                    paysafe_payment_id=payment_id,
+                    provider_payment_id=payment_id,
                     event_type="webhook.completed",
                     payload=payload,
                 )
-            elif any(x in event for x in ("FAILED", "DECLINED", "CANCELLED")):
+            elif any(x in event for x in ("FAILED", "DECLINED", "CANCELLED", "VOID")):
                 mark_order_failed(
                     order,
                     event_type="webhook.failed",
                     payload=payload,
                 )
         else:
-            # Orphan webhook — attach to SAMS if present for audit, else skip DB
             from companies.models import Company
 
             fallback = Company.objects.filter(slug="sams").first()
@@ -268,7 +296,7 @@ class PaysafeWebhookView(APIView):
                 PaymentEvent.objects.create(
                     company=fallback,
                     order=None,
-                    provider="paysafe",
+                    provider="paypak",
                     event_type=event_type,
                     external_id=payment_id,
                     payload=payload,
