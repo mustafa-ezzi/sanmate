@@ -12,19 +12,20 @@ from cms.views import BannerListView, CarouselDetailView, PolicyDetailView
 from companies.views import PublicCompanyDetailView
 from orders.views import OrderCreateView
 from payments.views import (
-    PaysafeConfigView,
-    PaysafeProcessPaymentView,
-    PaysafeSimulatePaymentView,
-    PaysafeWebhookView,
+    RapidGatewayConfigView,
+    RapidGatewayInitiateView,
+    RapidGatewayOrderStatusView,
+    RapidGatewaySimulatePaymentView,
+    RapidGatewayWebhookView,
 )
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("api/v1/admin/", include("admin_api.urls")),
     path(
-        "api/v1/webhooks/paysafe/",
-        PaysafeWebhookView.as_view(),
-        name="paysafe-webhook",
+        "api/v1/webhooks/rapid-gateway/",
+        RapidGatewayWebhookView.as_view(),
+        name="rapid-gateway-webhook",
     ),
     path(
         "api/v1/<slug:company_slug>/",
@@ -67,19 +68,24 @@ urlpatterns = [
         name="order-create",
     ),
     path(
-        "api/v1/<slug:company_slug>/payments/paysafe/config/",
-        PaysafeConfigView.as_view(),
-        name="paysafe-config",
+        "api/v1/<slug:company_slug>/payments/rapid-gateway/config/",
+        RapidGatewayConfigView.as_view(),
+        name="rapid-gateway-config",
     ),
     path(
-        "api/v1/<slug:company_slug>/payments/paysafe/process/",
-        PaysafeProcessPaymentView.as_view(),
-        name="paysafe-process",
+        "api/v1/<slug:company_slug>/payments/rapid-gateway/initiate/",
+        RapidGatewayInitiateView.as_view(),
+        name="rapid-gateway-initiate",
     ),
     path(
-        "api/v1/<slug:company_slug>/payments/paysafe/simulate/",
-        PaysafeSimulatePaymentView.as_view(),
-        name="paysafe-simulate",
+        "api/v1/<slug:company_slug>/payments/rapid-gateway/simulate/",
+        RapidGatewaySimulatePaymentView.as_view(),
+        name="rapid-gateway-simulate",
+    ),
+    path(
+        "api/v1/<slug:company_slug>/payments/rapid-gateway/orders/<str:order_number>/",
+        RapidGatewayOrderStatusView.as_view(),
+        name="rapid-gateway-order-status",
     ),
 ]
 

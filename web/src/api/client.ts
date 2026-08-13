@@ -56,27 +56,31 @@ export const api = {
   policy: (type: string) => get<Policy>(`${c()}/policies/${type}/`),
   createOrder: (payload: OrderPayload) =>
     post<Order>(`${c()}/orders/`, payload),
-  paysafeConfig: () =>
+  paymentConfig: () =>
     get<{
       company: string
+      provider: string
       env: string
       currency: string
       public_key: string
-      account_id: string
+      merchant_id: string
       configured: boolean
       simulate_allowed: boolean
-    }>(`${c()}/payments/paysafe/config/`),
-  processPaysafePayment: (body: {
-    order_number: string
-    payment_handle_token: string
-  }) =>
-    post<{ status: string; payment_id?: string; order: Order }>(
-      `${c()}/payments/paysafe/process/`,
-      body,
-    ),
-  simulatePaysafePayment: (order_number: string) =>
+    }>(`${c()}/payments/rapid-gateway/config/`),
+  initiatePayment: (order_number: string) =>
+    post<{
+      status: string
+      checkout_url: string
+      payment_id?: string
+      order: Order
+    }>(`${c()}/payments/rapid-gateway/initiate/`, { order_number }),
+  simulatePayment: (order_number: string) =>
     post<{ status: string; simulated: boolean; order: Order }>(
-      `${c()}/payments/paysafe/simulate/`,
+      `${c()}/payments/rapid-gateway/simulate/`,
       { order_number },
+    ),
+  paymentOrderStatus: (order_number: string) =>
+    get<{ order: Order }>(
+      `${c()}/payments/rapid-gateway/orders/${encodeURIComponent(order_number)}/`,
     ),
 }

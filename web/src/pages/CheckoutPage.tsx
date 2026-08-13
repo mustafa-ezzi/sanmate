@@ -1,30 +1,78 @@
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Order } from '../api/types'
 import { formatPKR } from '../lib/format'
 import { trackEvent } from '../lib/ga'
-import { openPaysafeCheckout, toMinorUnits } from '../lib/paysafe'
 import { useCart } from '../store/cart'
 
-type PaysafeConfig = {
+type PaymentConfig = {
   configured: boolean
   simulate_allowed: boolean
-  public_key: string
   env: string
   currency: string
+  provider?: string
 }
 
 export default function CheckoutPage() {
   const lines = useCart((s) => s.lines)
   const subtotal = useCart((s) => s.subtotal)
   const clear = useCart((s) => s.clear)
+  const [searchParams] = useSearchParams()
   const [order, setOrder] = useState<Order | null>(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [paying, setPaying] = useState(false)
+  const [polling, setPolling] = useState(false)
 
-  if (!lines.length && !order) {
+  const returnOrder = searchParams.get('order') || ''
+
+  useEffect(() => {
+    if (!returnOrder) return
+    let cancelled = false
+    let attempts = 0
+
+    async function poll() {
+      setPolling(true)
+      setError('')
+      try {
+        while (!cancelled && attempts < 20) {
+          attempts += 1
+          const { order: latest } = await api.paymentOrderStatus(returnOrder)
+          if (cancelled) return
+          setOrder(latest)
+          if (latest.payment_status === 'paid') {
+            clear()
+            trackEvent('purchase', {
+              transaction_id: latest.order_number,
+              value: Number(latest.total),
+              currency: latest.currency,
+            })
+            return
+          }
+          await new Promise((r) => setTimeout(r, 1500))
+        }
+        if (!cancelled) {
+          setError(
+            'Payment is still pending. If you already paid, wait a moment and refresh.',
+          )
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Could not load order')
+        }
+      } finally {
+        if (!cancelled) setPolling(false)
+      }
+    }
+
+    void poll()
+    return () => {
+      cancelled = true
+    }
+  }, [returnOrder, clear])
+
+  if (!lines.length && !order && !returnOrder) {
     return (
       <div className="page-shell py-20 text-center">
         <p className="font-mono-label text-muted">Checkout</p>
@@ -60,33 +108,20 @@ export default function CheckoutPage() {
     )
   }
 
-  async function payForOrder(created: Order, config: PaysafeConfig) {
+  async function payForOrder(created: Order, config: PaymentConfig) {
     setPaying(true)
     setError('')
     try {
-      if (config.configured && config.public_key) {
-        const token = await openPaysafeCheckout({
-          publicKey: config.public_key,
-          amountMinor: toMinorUnits(created.total),
-          currency: (config.currency || created.currency || 'PKR').toUpperCase(),
-          environment:
-            (config.env || 'test').toLowerCase() === 'live' ? 'LIVE' : 'TEST',
-          merchantRefNum: created.order_number,
-          description: `SAMS order ${created.order_number}`,
-        })
-        const paid = await api.processPaysafePayment({
-          order_number: created.order_number,
-          payment_handle_token: token,
-        })
-        clear()
-        setOrder(paid.order)
-        trackEvent('purchase', {
-          transaction_id: paid.order.order_number,
-          value: Number(paid.order.total),
-          currency: paid.order.currency,
-        })
-      } else if (config.simulate_allowed) {
-        const paid = await api.simulatePaysafePayment(created.order_number)
+      if (config.configured) {
+        const initiated = await api.initiatePayment(created.order_number)
+        if (initiated.checkout_url) {
+          window.location.assign(initiated.checkout_url)
+          return
+        }
+        throw new Error('No checkout URL returned from payment gateway.')
+      }
+      if (config.simulate_allowed) {
+        const paid = await api.simulatePayment(created.order_number)
         clear()
         setOrder(paid.order)
         trackEvent('purchase', {
@@ -97,7 +132,7 @@ export default function CheckoutPage() {
       } else {
         setOrder(created)
         setError(
-          'Paysafe keys are not configured. Add PAYSAFE_SAMS_* to backend .env',
+          'Rapid Gateway is not configured. Add RAPID_GATEWAY_SECRET_KEY on the backend.',
         )
       }
     } catch (err) {
@@ -128,7 +163,7 @@ export default function CheckoutPage() {
         })),
       })
       setOrder(created)
-      const config = await api.paysafeConfig()
+      const config = await api.paymentConfig()
       await payForOrder(created, config)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Checkout failed')
@@ -139,7 +174,7 @@ export default function CheckoutPage() {
 
   async function retryPayment() {
     if (!order) return
-    const config = await api.paysafeConfig()
+    const config = await api.paymentConfig()
     await payForOrder(order, config)
   }
 
@@ -149,9 +184,15 @@ export default function CheckoutPage() {
         Checkout
       </h1>
       <p className="text-muted mb-8">
-        Place your order and pay securely with Paysafe. In local dev without
-        keys, payment is simulated and WhatsApp alerts are logged for the team.
+        Place your order and pay securely via Rapid Gateway (cards, JazzCash,
+        easypaisa, Raast). In local DEBUG without keys, payment is simulated.
       </p>
+
+      {polling && (
+        <div className="mb-6 rounded-2xl border border-border bg-surface px-4 py-3 text-sm text-navy">
+          Confirming payment for order <strong>{returnOrder}</strong>…
+        </div>
+      )}
 
       {order && order.payment_status !== 'paid' && (
         <div className="mb-6 rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-navy">
@@ -164,7 +205,7 @@ export default function CheckoutPage() {
               disabled={paying}
               onClick={() => void retryPayment()}
             >
-              {paying ? 'Processing…' : 'Pay now'}
+              {paying ? 'Redirecting…' : 'Pay now'}
             </button>
           </div>
         </div>

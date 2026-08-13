@@ -170,6 +170,8 @@ RAPID_GATEWAY_API_BASE = os.getenv(
     "https://api.rapidgateway.pk/v1",
 )
 RAPID_GATEWAY_WEBHOOK_SECRET = os.getenv("RAPID_GATEWAY_WEBHOOK_SECRET", "")
+# Public storefront origin for payment return_url (e.g. https://yourstore.up.railway.app)
+STOREFRONT_BASE_URL = os.getenv("STOREFRONT_BASE_URL", "").rstrip("/")
 
 # Legacy Paysafe env (unused — kept so old Railway vars do not crash imports)
 PAYSAFE_ENV = os.getenv("PAYSAFE_ENV", "test")

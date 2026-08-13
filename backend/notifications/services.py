@@ -46,7 +46,7 @@ def build_order_message(order) -> str:
             f"- {item.product_name} x{item.quantity} — {order.currency} {item.line_total}"
         )
     lines.append(f"Total: {order.currency} {order.total}")
-    lines.append(f"Payment: {order.payment_status.upper()} (Paysafe)")
+    lines.append(f"Payment: {order.payment_status.upper()} (Rapid Gateway)")
     return "\n".join(lines)
 
 
