@@ -7,7 +7,7 @@ This document records the visual system used by the Sams Enterprises storefront 
 Sams Enterprises is a product house with two distinct collections:
 
 - **Sanmate** — tactile, calm, considered, and catalog-like.
-- **Wyped** — expressive, charged, sharper, and more energetic.
+- **Wype** — expressive, charged, sharper, and more energetic.
 
 The shared Sams layer should feel editorial and confident rather than like a generic e-commerce dashboard. Product imagery, large typography, whitespace, and motion carry most of the storytelling.
 
@@ -78,19 +78,19 @@ Sanmate should feel restrained and tactile:
 
 Sanmate image treatment is generally lower saturation (`saturate(.7)`) so the object photography feels calm and physical.
 
-## Wyped palette
+## Wype palette
 
-Wyped should feel more immediate and energetic while remaining part of the Sams house:
+Wype should feel more immediate and energetic while remaining part of the Sams house:
 
 | Token | Hex | Role |
 | --- | --- | --- |
-| Ink navy | `#171C4E` | Primary Wyped brand tone |
+| Ink navy | `#171C4E` | Primary Wype brand tone |
 | Signal orange-red | `#E94321` | Highlights, active accents, CTA emphasis |
 | Soft warm tint | `#F6DDD6` | Brand card backgrounds and supporting surfaces |
-| Mineral base | `#F3F1F0` | Wyped hero canvas |
+| Mineral base | `#F3F1F0` | Wype hero canvas |
 | Shared text | `#111111` | Legible type and neutral content |
 
-Wyped image treatment increases energy with `saturate(1.2)` to `saturate(1.35)` and a small contrast lift.
+Wype image treatment increases energy with `saturate(1.2)` to `saturate(1.35)` and a small contrast lift.
 
 ## Brand switching behavior
 
@@ -265,7 +265,7 @@ Future motion additions should include:
 Current visual assets live in `public/`:
 
 - `sanmate-hero.png` — warm Sanmate hero/product world
-- `wyped-hero.png` — energetic Wyped hero/product world
+- `wyped-hero.png` — energetic Wype hero/product world
 - `editorial-room.png` — shared lifestyle/editorial scene
 
 Image guidelines:
@@ -281,7 +281,7 @@ Image guidelines:
 
 The UI prototype includes these presentational states:
 
-- Sanmate / Wyped brand switcher
+- Sanmate / Wype brand switcher
 - Desktop and mobile navigation
 - Search overlay
 - Empty shopping bag drawer
@@ -312,7 +312,7 @@ Keep controls visually consistent with the utility-label language and always pro
 | `src/App.tsx` | Storefront composition, brand data, UI state, section structure, product cards, overlays |
 | `src/index.css` | Theme variables, font loading, base styles, animation keyframes, utility motion classes |
 | `public/sanmate-hero.png` | Sanmate visual asset |
-| `public/wyped-hero.png` | Wyped visual asset |
+| `public/wyped-hero.png` | Wype visual asset |
 | `public/editorial-room.png` | Shared editorial visual asset |
 
 The storefront intentionally has no API, authentication, database, or checkout integration. Any future production commerce work should preserve the current visual states while replacing the local arrays and `cartCount` UI state with real data contracts.

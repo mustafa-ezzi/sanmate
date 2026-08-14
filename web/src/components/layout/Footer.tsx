@@ -21,7 +21,7 @@ export default function Footer() {
               Two collections. One house of considered products.
             </h2>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-white/60 sm:text-base">
-              Sanmate brings calm sanitary precision. Wyped brings charged
+              Sanmate brings calm sanitary precision. Wype brings charged
               cleaning energy. Both live under SAMS.
             </p>
           </div>
@@ -76,7 +76,7 @@ export default function Footer() {
             {[
               ['/products', 'Shop'],
               ['/brands/sanmate', 'Sanmate'],
-              ['/brands/wyped', 'Wyped'],
+              ['/brands/wyped', 'Wype'],
               ['/policies/privacy', 'Privacy'],
               ['/policies/return', 'Returns'],
               ['/policies/exchange', 'Exchange'],

@@ -122,7 +122,7 @@ class Command(BaseCommand):
             company=sams,
             slug="wyped",
             defaults={
-                "name": "Wyped",
+                "name": "Wype",
                 "logo_url": "https://cdn.example.com/sams/brands/wyped.png",
                 "hero_image_url": "https://cdn.example.com/sams/brands/wyped-hero.jpg",
                 "description": "Household cleaning — wipers, mops, and everyday essentials.",
@@ -169,11 +169,11 @@ class Command(BaseCommand):
             },
             {
                 "category": wyped,
-                "name": "Wyped Floor Mop Pro",
+                "name": "Wype Floor Mop Pro",
                 "slug": "wyped-floor-mop-pro",
                 "sku": "WY-MP-001",
                 "short_description": "Microfiber mop for quick everyday cleaning.",
-                "description": "Dummy Wyped mop product for multi-brand catalogue testing.",
+                "description": "Dummy Wype mop product for multi-brand catalogue testing.",
                 "price": Decimal("1290.00"),
                 "sale_price": Decimal("1090.00"),
                 "cost_price": Decimal("450.00"),
@@ -186,7 +186,7 @@ class Command(BaseCommand):
             },
             {
                 "category": wyped,
-                "name": "Wyped Window Wiper",
+                "name": "Wype Window Wiper",
                 "slug": "wyped-window-wiper",
                 "sku": "WY-WW-001",
                 "short_description": "Streak-free window wiper blade.",
@@ -227,7 +227,7 @@ class Command(BaseCommand):
             company=sams,
             title="Welcome to SAMS Enterprises",
             defaults={
-                "subtitle": "Household brands you trust — Sanmate & Wyped",
+                "subtitle": "Household brands you trust — Sanmate & Wype",
                 "image_url": "https://cdn.example.com/sams/banners/home-hero.jpg",
                 "cta_label": "Shop now",
                 "cta_link": "/products",
@@ -253,7 +253,7 @@ class Command(BaseCommand):
         CarouselSlide.objects.create(
             carousel=carousel,
             image_url="https://cdn.example.com/sams/carousel/slide-2.jpg",
-            caption="Wyped cleaning",
+            caption="Wype cleaning",
             link="/brands/wyped",
             sort_order=1,
             is_active=True,

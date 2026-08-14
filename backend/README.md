@@ -26,7 +26,7 @@ SQLite is used by default. Set `DATABASE_URL=postgres://...` for PostgreSQL.
 | Topic | Decision |
 | --- | --- |
 | Focus | SAMS storefront now; AM website later |
-| Child brands | Created in admin (seed has Sanmate / Wyped as dummy) |
+| Child brands | Created in admin (seed has Sanmate / Wype as dummy) |
 | Currency | PKR |
 | Paysafe | Separate merchant accounts per company |
 | R2 | Same bucket, `sams/` / `am/` prefixes |

@@ -52,7 +52,7 @@ export default function LoginPage() {
           </h1>
           <p className="mt-4 max-w-sm text-white/65">
             Catalogue, orders, banners, and settings — one panel for Sanmate and
-            Wyped.
+            Wype.
           </p>
         </div>
 

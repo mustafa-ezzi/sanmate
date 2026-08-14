@@ -1,7 +1,7 @@
 # SAMS Enterprises — Development Phases
 
 **Product:** Household e-commerce platform for **SAMS Enterprises**  
-**Child brands / categories (examples):** Sanmate (sanitary), Wyped (wipers, mops & cleaning), … — created in admin  
+**Child brands / categories (examples):** Sanmate (sanitary), Wype (wipers, mops & cleaning), … — created in admin  
 
 **Stack:** React (storefront + admin) · Django + DRF · PostgreSQL · Cloudflare (media URLs) · Paysafe · Google Analytics · WhatsApp order notifications  
 
@@ -67,7 +67,7 @@ Fully animated, cinematic first impression:
 - Optional **liquid / crystal** decorative components (blobs, refractive glass panels)  
 - Selective **glassmorphism** (nav, floating cards)  
 - Soft **neumorphism** accents on feature tiles where it fits (not overused)  
-- Hero + brand portals (Sanmate / Wyped) feel “Apple-tier” without layout bugs  
+- Hero + brand portals (Sanmate / Wype) feel “Apple-tier” without layout bugs  
 
 ### Rest of the website
 
@@ -141,7 +141,7 @@ sanmate/
 | **Company** | `sams` — name, slug, logo URL, theme JSON, domains, active |
 | **CompanySettings** | GA ID, currency, Paysafe account refs, contact email |
 | **WhatsAppNotifyRecipient** | FK → Company — label (e.g. Mustafa) + phone; each gets order alerts individually |
-| **Category / ChildBrand** | FK → Company (Sanmate, Wyped, …) |
+| **Category / ChildBrand** | FK → Company (Sanmate, Wype, …) |
 | **Product** | FK → Company (+ Category). SKU unique per company |
 | **ProductImage** | Image URLs (upload), sort |
 | **Banner / Hero** | FK → Company |
@@ -156,7 +156,7 @@ sanmate/
 
 ## Storefront — SAMS Enterprises
 
-1. **Landing (fully animated)** — company hero, Sanmate / Wyped portals, featured products  
+1. **Landing (fully animated)** — company hero, Sanmate / Wype portals, featured products  
 2. Category / brand pages  
 3. Catalogue — filter, search, sort  
 4. Product detail  
@@ -210,7 +210,7 @@ Orders:
 - [x] DRF public APIs at `/api/v1/sams/…`  
 - [x] Admin APIs under `/api/v1/admin/…` + Django admin  
 - [x] Media upload → URL  
-- [x] Seed: Company `sams` + Sanmate/Wyped + products  
+- [x] Seed: Company `sams` + Sanmate/Wype + products  
 - [x] WhatsApp recipient list seeded (Owner, Mustafa, Mustansir, Ali)  
 
 **Public APIs**
@@ -435,7 +435,7 @@ VITE_PAYSAFE_ENV=test
 
 - **SAMS public email:** `info.samsenterprise.pk@gmail.com`  
 - **WhatsApp notify:** multiple team numbers (e.g. owner, Mustafa, Mustansir, Ali) — managed in admin; not on storefront  
-- **SAMS brands to seed first:** Sanmate · Wyped  
+- **SAMS brands to seed first:** Sanmate · Wype  
 
 ---
 

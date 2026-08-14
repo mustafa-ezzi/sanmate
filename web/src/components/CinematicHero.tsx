@@ -34,11 +34,11 @@ const fallbackSlides: HeroSlide[] = [
   },
   {
     id: 'wyped',
-    eyebrow: 'Wyped',
+    eyebrow: 'Wype',
     title: 'Cleaning energy with sharper intent.',
     subtitle:
       'Expressive household essentials with charged color and everyday power.',
-    ctaLabel: 'Explore Wyped',
+    ctaLabel: 'Explore Wype',
     ctaLink: '/brands/wyped',
   },
 ]

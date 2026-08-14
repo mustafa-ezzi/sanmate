@@ -49,22 +49,22 @@ export default function AdminLayout() {
 
   const sidebar = (
     <>
-      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
+      <div className="admin-sidebar-brand">
         <img
           src="/images/sams-logo.jpg"
           alt=""
-          className="h-10 w-10 rounded-full object-cover ring-1 ring-white/20"
+          className="h-10 w-10 rounded-full object-cover ring-1 ring-white/15"
         />
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9aa3d1]">
             Admin
           </p>
-          <p className="font-display text-sm font-extrabold tracking-[-0.03em]">
+          <p className="font-display text-sm font-extrabold tracking-[-0.03em] text-[#f4f5fb]">
             SAMS Enterprises
           </p>
         </div>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="admin-sidebar-nav">
         {nav.map((item) => (
           <NavLink
             key={item.to}
@@ -72,11 +72,7 @@ export default function AdminLayout() {
             end={item.end}
             onClick={() => setOpen(false)}
             className={({ isActive }) =>
-              `flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? 'bg-white text-[#171c4e] shadow-sm'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white'
-              }`
+              `admin-nav-item${isActive ? ' is-active' : ''}`
             }
           >
             <item.icon size={16} />
@@ -84,20 +80,17 @@ export default function AdminLayout() {
           </NavLink>
         ))}
       </nav>
-      <div className="space-y-1 border-t border-white/10 p-3">
-        <a
-          href="/"
-          className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-white/65 hover:bg-white/10 hover:text-white"
-        >
+      <div className="admin-sidebar-foot">
+        <a href="/" className="admin-nav-item quiet">
           <Store size={16} /> View storefront
         </a>
         <button
           type="button"
+          className="admin-nav-item quiet"
           onClick={async () => {
             await logout()
             navigate('/admin/login')
           }}
-          className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm text-white/65 hover:bg-white/10 hover:text-white"
         >
           <LogOut size={16} /> Log out
         </button>
@@ -107,7 +100,7 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-shell flex min-h-screen bg-[#f4f5f8] text-slate-900">
-      <aside className="hidden w-64 shrink-0 flex-col bg-[#171c4e] text-white lg:flex">
+      <aside className="admin-sidebar hidden w-64 shrink-0 flex-col lg:flex">
         {sidebar}
       </aside>
 
@@ -119,7 +112,7 @@ export default function AdminLayout() {
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />
-          <aside className="relative flex h-full w-72 flex-col bg-[#171c4e] text-white shadow-2xl">
+          <aside className="admin-sidebar relative flex h-full w-72 flex-col shadow-2xl">
             <button
               type="button"
               aria-label="Close menu"

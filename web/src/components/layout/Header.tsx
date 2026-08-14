@@ -7,7 +7,7 @@ import { useCart } from '../../store/cart'
 const links = [
   { to: '/products', label: 'Shop' },
   { to: '/brands/sanmate', label: 'Sanmate' },
-  { to: '/brands/wyped', label: 'Wyped' },
+  { to: '/brands/wyped', label: 'Wype' },
   { to: '/policies/shipping', label: 'Shipping' },
 ]
 
@@ -101,7 +101,7 @@ export default function Header() {
                   overHero ? 'text-white/60' : 'text-muted'
                 }`}
               >
-                House of Sanmate & Wyped
+                House of Sanmate & Wype
               </p>
             </div>
           </Link>
@@ -215,7 +215,7 @@ export default function Header() {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search Sanmate, Wyped…"
+                placeholder="Search Sanmate, Wype…"
                 className="w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-navy/40"
               />
               <button type="submit" className="btn-primary mt-4 w-full">
@@ -259,7 +259,7 @@ export default function Header() {
                     Your bag is empty
                   </p>
                   <p className="mt-2 text-sm text-muted">
-                    Explore Sanmate and Wyped to get started.
+                    Explore Sanmate and Wype to get started.
                   </p>
                   <Link
                     to="/products"

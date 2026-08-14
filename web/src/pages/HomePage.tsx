@@ -15,7 +15,7 @@ type BrandFilter = 'all' | 'sanmate' | 'wyped'
 
 const tickerItems = [
   'SAMS Enterprises',
-  'House of Sanmate & Wyped',
+  'House of Sanmate & Wype',
   'Designed for Pakistani homes',
   'Premium household brands',
   'Free delivery over Rs 5,000',
@@ -159,7 +159,7 @@ export default function HomePage() {
         <SectionHeading
           eyebrow="Our brands"
           title="Two worlds under SAMS."
-          subtitle="Sanmate and Wyped keep their own tone — both belong to the house."
+          subtitle="Sanmate and Wype keep their own tone — both belong to the house."
         />
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           {categories.map((cat) => {
@@ -211,7 +211,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="From the house"
             title="Products made to be noticed."
-            subtitle="A curated edit across Sanmate and Wyped."
+            subtitle="A curated edit across Sanmate and Wype."
           />
           <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-10">
             <div
@@ -223,7 +223,7 @@ export default function HomePage() {
                 [
                   ['all', 'All'],
                   ['sanmate', 'Sanmate'],
-                  ['wyped', 'Wyped'],
+                  ['wyped', 'Wype'],
                 ] as const
               ).map(([value, label]) => (
                 <button

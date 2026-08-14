@@ -4,7 +4,7 @@ from companies.models import Company
 
 
 class Category(models.Model):
-    """Child brand / department — created via admin (e.g. Sanmate, Wyped)."""
+    """Child brand / department — created via admin (e.g. Sanmate, Wype)."""
 
     company = models.ForeignKey(
         Company,

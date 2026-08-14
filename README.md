@@ -2,7 +2,7 @@
 
 Household e-commerce for **SAMS Enterprises** — storefront + admin panel (SAMS only).
 
-Child brands include **Sanmate**, **Wyped**, and more (created in admin).
+Child brands include **Sanmate**, **Wype**, and more (created in admin).
 
 ## Docs
 

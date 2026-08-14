@@ -48,7 +48,7 @@ export default function CategoriesPage() {
         icon={Tags}
         eyebrow="Catalogue"
         title="Child brands"
-        subtitle="Create child brands for SAMS (e.g. Sanmate, Wyped)."
+        subtitle="Create child brands for SAMS (e.g. Sanmate, Wype)."
       />
 
       <form onSubmit={onSubmit} className="admin-card grid gap-3 p-5 sm:grid-cols-2">
