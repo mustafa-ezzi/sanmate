@@ -79,7 +79,9 @@ export default function Footer() {
               ['/brands/wyped', 'Wyped'],
               ['/policies/privacy', 'Privacy'],
               ['/policies/return', 'Returns'],
+              ['/policies/exchange', 'Exchange'],
               ['/policies/shipping', 'Shipping'],
+              ['/policies/terms', 'Terms'],
             ].map(([to, label]) => (
               <Link
                 key={to}

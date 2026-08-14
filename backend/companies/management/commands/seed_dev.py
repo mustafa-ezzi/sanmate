@@ -6,7 +6,9 @@ Usage:
   python manage.py seed_dev --flush
 """
 
+import json
 from decimal import Decimal
+from pathlib import Path
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -18,6 +20,9 @@ from cms.models import Banner, Carousel, CarouselSlide, Policy
 from companies.models import Company, CompanySettings
 from notifications.models import WhatsAppNotifyRecipient
 
+POLICIES_FILE = (
+    Path(__file__).resolve().parents[3] / "cms" / "data" / "sams_policies.json"
+)
 
 class Command(BaseCommand):
     help = "Seed SAMS Enterprises dummy catalogue for development"
@@ -254,40 +259,17 @@ class Command(BaseCommand):
             is_active=True,
         )
 
-        for ptype, title, body in [
-            (
-                Policy.PolicyType.PRIVACY,
-                "Privacy Policy",
-                "Dummy privacy policy for SAMS Enterprises development.",
-            ),
-            (
-                Policy.PolicyType.RETURN,
-                "Return Policy",
-                "Dummy return policy. Items may be returned within 7 days.",
-            ),
-            (
-                Policy.PolicyType.EXCHANGE,
-                "Exchange Policy",
-                "Dummy exchange policy for unused products.",
-            ),
-            (
-                Policy.PolicyType.SHIPPING,
-                "Shipping Policy",
-                "Dummy shipping policy. Delivery across Pakistan.",
-            ),
-            (
-                Policy.PolicyType.TERMS,
-                "Terms of Service",
-                "Dummy terms of service for checkout development.",
-            ),
-        ]:
+        with POLICIES_FILE.open(encoding="utf-8") as f:
+            policy_rows = json.load(f)
+
+        for row in policy_rows:
             Policy.objects.update_or_create(
                 company=sams,
-                policy_type=ptype,
+                policy_type=row["policy_type"],
                 defaults={
-                    "title": title,
-                    "body": body,
-                    "version": "1.0",
+                    "title": row["title"],
+                    "body": row["body"],
+                    "version": row.get("version", "1.0"),
                     "is_published": True,
                 },
             )
