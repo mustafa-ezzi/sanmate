@@ -34,7 +34,7 @@ export default function ScrollReveal({ children, className = '', delay = 0 }: Pr
         opacity: visible ? 1 : 0,
         filter: visible ? 'blur(0px)' : 'blur(8px)',
         transform: visible ? 'translateY(0)' : 'translateY(18px)',
-        transition: `opacity 0.75s cubic-bezier(.22,.8,.26,1) ${delay}s, filter 0.75s cubic-bezier(.22,.8,.26,1) ${delay}s, transform 0.75s cubic-bezier(.22,.8,.26,1) ${delay}s`,
+        transition: `opacity 1.1s cubic-bezier(.22,.8,.26,1) ${delay}s, filter 1.1s cubic-bezier(.22,.8,.26,1) ${delay}s, transform 1.1s cubic-bezier(.22,.8,.26,1) ${delay}s`,
         willChange: 'opacity, filter, transform',
       }}
     >

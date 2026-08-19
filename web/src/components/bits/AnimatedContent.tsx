@@ -14,7 +14,7 @@ export default function AnimatedContent({
   direction = 'vertical',
   distance = 24,
   delay = 0,
-  duration = 0.55,
+  duration = 0.85,
   className = '',
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)

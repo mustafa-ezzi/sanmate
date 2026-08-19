@@ -10,7 +10,7 @@ type Props = {
 export default function BlurText({
   text,
   className = '',
-  staggerMs = 80,
+  staggerMs = 120,
   initialDelayMs = 0,
 }: Props) {
   const words = text.split(' ')
@@ -44,7 +44,7 @@ export default function BlurText({
               opacity: revealed ? 1 : 0,
               filter: revealed ? 'blur(0px)' : 'blur(10px)',
               transform: revealed ? 'translateY(0)' : 'translateY(6px)',
-              transition: 'opacity 0.45s cubic-bezier(.22,.8,.26,1), filter 0.45s cubic-bezier(.22,.8,.26,1), transform 0.45s cubic-bezier(.22,.8,.26,1)',
+              transition: 'opacity 0.7s cubic-bezier(.22,.8,.26,1), filter 0.7s cubic-bezier(.22,.8,.26,1), transform 0.7s cubic-bezier(.22,.8,.26,1)',
               willChange: 'opacity, filter, transform',
             }}
           >

@@ -190,8 +190,8 @@ export default function CinematicHero({ banners, carousel, categories }: Props) 
             <BlurText
               key={slide.id}
               text={slide.subtitle}
-              staggerMs={80}
-              initialDelayMs={300}
+              staggerMs={120}
+              initialDelayMs={350}
             />
           </p>
           <div className="hero-copy-in mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center">

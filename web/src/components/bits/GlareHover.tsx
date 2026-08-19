@@ -54,7 +54,7 @@ export default function GlareHover({
           background: `radial-gradient(circle, ${glareColor} 0%, transparent 70%)`,
           pointerEvents: 'none',
           opacity: 0,
-          transition: 'opacity 0.25s ease',
+          transition: 'opacity 0.4s ease',
         }}
       />
     </div>

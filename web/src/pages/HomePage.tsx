@@ -132,7 +132,7 @@ export default function HomePage() {
       <section className="overflow-hidden bg-house py-4 text-white">
         <ScrollVelocity
           items={tickerItems}
-          baseSpeed={38}
+          baseSpeed={28}
           itemClassName="font-mono-label text-white/75"
         />
       </section>
