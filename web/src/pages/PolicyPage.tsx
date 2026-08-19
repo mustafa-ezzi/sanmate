@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import type { Policy } from '../api/types'
+import ScrollReveal from '../components/bits/ScrollReveal'
 
 const labels: Record<string, string> = {
   privacy: 'Privacy',
@@ -53,9 +54,11 @@ export default function PolicyPage() {
       {!error && !policy && <p className="text-muted">Loading…</p>}
       {policy && (
         <>
+          <ScrollReveal>
           <h1 className="font-display text-3xl sm:text-4xl text-navy mb-2">
             {policy.title}
           </h1>
+          </ScrollReveal>
           <p className="text-xs text-muted mb-6">Version {policy.version}</p>
           <div className="prose-policy rounded-[1.5rem] border border-border bg-surface p-6 sm:p-8">
             {policy.body}

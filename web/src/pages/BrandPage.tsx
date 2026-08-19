@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import type { Category, Product } from '../api/types'
 import ProductCard from '../components/product/ProductCard'
 import SectionHeading from '../components/ui/SectionHeading'
+import BlurText from '../components/bits/BlurText'
 
 export default function BrandPage() {
   const { slug = '' } = useParams()
@@ -73,7 +74,7 @@ export default function BrandPage() {
             {category.name}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-white/70">
-            {category.description}
+            <BlurText text={category.description || ''} staggerMs={70} initialDelayMs={200} />
           </p>
           <Link to="/products" className="btn-primary mt-8 !bg-white !text-ink">
             Browse all products

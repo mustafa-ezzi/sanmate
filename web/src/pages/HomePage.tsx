@@ -10,6 +10,9 @@ import type { Banner, Carousel, Category, Product } from '../api/types'
 import CinematicHero from '../components/CinematicHero'
 import ProductCard from '../components/product/ProductCard'
 import SectionHeading from '../components/ui/SectionHeading'
+import ScrollVelocity from '../components/bits/ScrollVelocity'
+import AnimatedContent from '../components/bits/AnimatedContent'
+import GlareHover from '../components/bits/GlareHover'
 
 type BrandFilter = 'all' | 'sanmate' | 'wyped'
 
@@ -127,21 +130,11 @@ export default function HomePage() {
 
       {/* Statement ticker */}
       <section className="overflow-hidden bg-house py-4 text-white">
-        <div className="ticker-track flex gap-10 whitespace-nowrap px-4">
-          {[0, 1].map((copyIndex) => (
-            <div key={copyIndex} className="flex gap-10">
-              {tickerItems.map((item) => (
-                <span
-                  key={`${copyIndex}-${item}`}
-                  className="font-mono-label inline-flex items-center gap-10 text-white/75"
-                >
-                  {item}
-                  <span className="h-1 w-1 rounded-full bg-accent" />
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
+        <ScrollVelocity
+          items={tickerItems}
+          baseSpeed={38}
+          itemClassName="font-mono-label text-white/75"
+        />
       </section>
 
       {error && (
@@ -162,13 +155,14 @@ export default function HomePage() {
           subtitle="Sanmate and Wype keep their own tone — both belong to the house."
         />
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
-          {categories.map((cat) => {
+          {categories.map((cat, i) => {
             const isWyped = cat.slug === 'wyped'
             return (
+              <AnimatedContent key={cat.id} direction="vertical" distance={24} delay={i * 0.1}>
+              <GlareHover className="block h-full">
               <Link
-                key={cat.id}
                 to={`/brands/${cat.slug}`}
-                className={`group relative min-h-[18rem] overflow-hidden rounded-[1.75rem] text-left transition duration-500 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(17,17,17,0.12)] sm:min-h-[22rem] ${
+                className={`group relative flex min-h-[18rem] overflow-hidden rounded-[1.75rem] text-left transition duration-500 hover:-translate-y-0.5 hover:shadow-[0_24px_60px_rgba(17,17,17,0.12)] sm:min-h-[22rem] ${
                   isWyped ? 'bg-wyped-ink' : 'bg-navy'
                 }`}
               >
@@ -197,6 +191,8 @@ export default function HomePage() {
                   </span>
                 </div>
               </Link>
+              </GlareHover>
+              </AnimatedContent>
             )
           })}
           {!categories.length && !error && (
@@ -319,10 +315,12 @@ export default function HomePage() {
               with editorial clarity, mineral surfaces, and products that earn
               their place.
             </p>
-            <Link to="/products" className="btn-house mt-8 inline-flex">
-              Explore the catalogue
-              <ArrowRight size={16} />
-            </Link>
+            <GlareHover className="mt-8 inline-flex rounded-full">
+              <Link to="/products" className="btn-house inline-flex">
+                Explore the catalogue
+                <ArrowRight size={16} />
+              </Link>
+            </GlareHover>
           </div>
         </div>
       </section>

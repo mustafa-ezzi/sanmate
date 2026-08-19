@@ -4,6 +4,8 @@ import { useState } from 'react'
 import type { Product } from '../../api/types'
 import { formatPKR } from '../../lib/format'
 import { useCart } from '../../store/cart'
+import AnimatedContent from '../bits/AnimatedContent'
+import GlareHover from '../bits/GlareHover'
 
 type Props = {
   product: Product
@@ -53,14 +55,17 @@ export default function ProductCard({
   }
 
   return (
-    <article
+    <AnimatedContent
+      direction="vertical"
+      distance={24}
       className={`group relative ${
         rail
           ? 'min-w-[78vw] snap-center sm:min-w-[18.5rem] lg:min-w-[20rem]'
           : ''
       }`}
     >
-      <div className="relative overflow-hidden rounded-[1.5rem] bg-surface shadow-[0_14px_40px_rgba(17,17,17,0.06)]">
+    <article className="h-full">
+      <GlareHover className="relative overflow-hidden rounded-[1.5rem] bg-surface shadow-[0_14px_40px_rgba(17,17,17,0.06)]">
         <Link to={`/products/${product.slug}`} className="block aspect-[4/5]">
           {product.primary_image ? (
             <img
@@ -104,7 +109,7 @@ export default function ProductCard({
           <Plus size={16} />
           {added ? 'Added to bag' : 'Add to bag'}
         </button>
-      </div>
+      </GlareHover>
 
       <div className="mt-4 px-0.5">
         <p className="font-mono-label text-muted">{product.category_name}</p>
@@ -126,5 +131,6 @@ export default function ProductCard({
         </div>
       </div>
     </article>
+    </AnimatedContent>
   )
 }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Banner, Carousel, Category } from '../api/types'
+import BlurText from './bits/BlurText'
 
 export type HeroSlide = {
   id: string
@@ -186,7 +187,12 @@ export default function CinematicHero({ banners, carousel, categories }: Props) 
             key={`${slide.id}-sub`}
             className="hero-copy-in mt-4 max-w-md text-[0.95rem] leading-relaxed text-white/75 sm:text-lg"
           >
-            {slide.subtitle}
+            <BlurText
+              key={slide.id}
+              text={slide.subtitle}
+              staggerMs={80}
+              initialDelayMs={300}
+            />
           </p>
           <div className="hero-copy-in mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:items-center">
             <Link to={slide.ctaLink} className="btn-hero">
