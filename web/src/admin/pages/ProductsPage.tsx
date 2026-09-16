@@ -1,9 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Package, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { FileSpreadsheet, Package, Pencil, Plus, Trash2, Upload, X } from 'lucide-react'
 import { adminApi, type AdminCategory, type AdminProduct } from '../api'
 import { formatPKR } from '../../lib/format'
 import ImageUploadField from '../components/ImageUploadField'
 import { Alert, PageHeader } from '../components/ui'
+import {
+  parseProductXlsx,
+  type ImportProductRow,
+} from '../lib/parseProductXlsx'
 
 const empty = {
   category: 0,
@@ -27,6 +31,11 @@ export default function ProductsAdminPage() {
   const [form, setForm] = useState(empty)
   const [editing, setEditing] = useState<number | null>(null)
   const [error, setError] = useState('')
+  const [importRows, setImportRows] = useState<ImportProductRow[]>([])
+  const [importFileName, setImportFileName] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importStatus, setImportStatus] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function load() {
     const [products, cats] = await Promise.all([
@@ -45,28 +54,46 @@ export default function ProductsAdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  function toPayload(row: {
+    category: number
+    name: string
+    slug: string
+    sku: string
+    short_description: string
+    description: string
+    price: string
+    sale_price: string
+    cost_price: string
+    stock: number
+    is_featured: boolean
+    is_active: boolean
+    image_url?: string
+  }): Partial<AdminProduct> {
+    return {
+      category: row.category,
+      name: row.name,
+      slug: row.slug,
+      sku: row.sku,
+      short_description: row.short_description,
+      description: row.description,
+      price: row.price,
+      sale_price: row.sale_price || null,
+      cost_price: row.cost_price || null,
+      stock: Number(row.stock),
+      is_featured: row.is_featured,
+      is_active: row.is_active,
+      specs: {},
+      images: row.image_url
+        ? [{ url: row.image_url, alt: row.name, sort_order: 0 }]
+        : [],
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    const payload: Partial<AdminProduct> = {
-      category: form.category,
-      name: form.name,
-      slug: form.slug,
-      sku: form.sku,
-      short_description: form.short_description,
-      description: form.description,
-      price: form.price,
-      sale_price: form.sale_price || null,
-      cost_price: form.cost_price || null,
-      stock: Number(form.stock),
-      is_featured: form.is_featured,
-      is_active: form.is_active,
-      specs: {},
-      images: form.image_url
-        ? [{ url: form.image_url, alt: form.name, sort_order: 0 }]
-        : [],
-    }
     try {
+      const payload = toPayload(form)
       if (editing) await adminApi.products.update(editing, payload)
       else await adminApi.products.create(payload)
       setForm({ ...empty, category: categories[0]?.id || 0 })
@@ -75,6 +102,99 @@ export default function ProductsAdminPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed')
     }
+  }
+
+  async function onImportFile(file: File | null) {
+    if (!file) return
+    setError('')
+    setImportStatus('')
+    try {
+      const buffer = await file.arrayBuffer()
+      const rows = parseProductXlsx(
+        buffer,
+        categories,
+        categories[0]?.id || 0,
+      )
+      if (!rows.length) {
+        setImportRows([])
+        setImportFileName('')
+        setError('No product rows found in that spreadsheet.')
+        return
+      }
+      setImportRows(rows)
+      setImportFileName(file.name)
+    } catch (err) {
+      setImportRows([])
+      setImportFileName('')
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Could not read that XLSX file.',
+      )
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  function updateImportRow(
+    key: string,
+    patch: Partial<ImportProductRow>,
+  ) {
+    setImportRows((rows) =>
+      rows.map((row) => {
+        if (row.key !== key) return row
+        const next = { ...row, ...patch }
+        if (patch.category != null) {
+          const cat = categories.find((c) => c.id === patch.category)
+          next.categoryLabel = cat?.name || next.categoryLabel
+        }
+        return next
+      }),
+    )
+  }
+
+  async function addAllImported() {
+    if (!importRows.length) return
+    setImporting(true)
+    setError('')
+    setImportStatus('')
+    let created = 0
+    const failures: string[] = []
+
+    for (const [index, row] of importRows.entries()) {
+      if (!row.name.trim() || !row.sku.trim() || !row.category) {
+        failures.push(`Row ${index + 1}: name, SKU, and brand are required`)
+        continue
+      }
+      try {
+        await adminApi.products.create(toPayload(row))
+        created += 1
+        setImportStatus(`Adding products… ${created}/${importRows.length}`)
+      } catch (err) {
+        failures.push(
+          `Row ${index + 1} (${row.sku || row.name}): ${
+            err instanceof Error ? err.message : 'failed'
+          }`,
+        )
+      }
+    }
+
+    setImporting(false)
+    await load()
+
+    if (failures.length) {
+      setError(
+        `Added ${created} of ${importRows.length}. ${failures.slice(0, 5).join(' · ')}${
+          failures.length > 5 ? ` · +${failures.length - 5} more` : ''
+        }`,
+      )
+      setImportStatus('')
+      return
+    }
+
+    setImportStatus(`Added ${created} products successfully.`)
+    setImportRows([])
+    setImportFileName('')
   }
 
   return (
@@ -89,6 +209,257 @@ export default function ProductsAdminPage() {
       {!categories.length && (
         <Alert tone="warn">Create a child brand first before adding products.</Alert>
       )}
+
+      <section className="admin-card space-y-4 p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2 font-semibold text-[#171c4e]">
+              <FileSpreadsheet size={16} />
+              Import products from XLSX
+            </div>
+            <p className="text-sm text-slate-500">
+              Upload a spreadsheet, review/edit every field in the table, then
+              add all products at once. Accepted headers: name, sku, brand /
+              category, price, sale_price, cost_price, stock, slug,
+              short_description, description, image_url, featured, active.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls"
+              className="hidden"
+              onChange={(e) => onImportFile(e.target.files?.[0] || null)}
+            />
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!categories.length || importing}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload size={15} />
+              {importFileName ? 'Replace file' : 'Choose XLSX'}
+            </button>
+            {importRows.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  className="btn"
+                  disabled={importing || !categories.length}
+                  onClick={addAllImported}
+                >
+                  <Plus size={15} />
+                  {importing
+                    ? 'Adding…'
+                    : `Add all ${importRows.length} products`}
+                </button>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  disabled={importing}
+                  onClick={() => {
+                    setImportRows([])
+                    setImportFileName('')
+                    setImportStatus('')
+                  }}
+                >
+                  <X size={15} /> Clear
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
+        {importFileName && (
+          <p className="text-xs text-slate-500">
+            Scanned <span className="font-medium text-slate-700">{importFileName}</span>
+            {importRows.length ? ` · ${importRows.length} rows` : ''}
+          </p>
+        )}
+
+        {importStatus && <Alert tone="ok">{importStatus}</Alert>}
+
+        {importRows.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-slate-200">
+            <table className="admin-table min-w-[1100px]">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>Name</th>
+                  <th>SKU</th>
+                  <th>Slug</th>
+                  <th>Price</th>
+                  <th>Sale</th>
+                  <th>Cost</th>
+                  <th>Stock</th>
+                  <th>Short description</th>
+                  <th>Image URL</th>
+                  <th>Flags</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {importRows.map((row) => (
+                  <tr key={row.key}>
+                    <td>
+                      <select
+                        className="field min-w-[8rem]"
+                        value={row.category}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            category: Number(e.target.value),
+                          })
+                        }
+                      >
+                        {categories.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[9rem]"
+                        value={row.name}
+                        onChange={(e) =>
+                          updateImportRow(row.key, { name: e.target.value })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[7rem]"
+                        value={row.sku}
+                        onChange={(e) =>
+                          updateImportRow(row.key, { sku: e.target.value })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[8rem]"
+                        value={row.slug}
+                        onChange={(e) =>
+                          updateImportRow(row.key, { slug: e.target.value })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[5.5rem]"
+                        value={row.price}
+                        onChange={(e) =>
+                          updateImportRow(row.key, { price: e.target.value })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[5.5rem]"
+                        value={row.sale_price}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            sale_price: e.target.value,
+                          })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[5.5rem]"
+                        value={row.cost_price}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            cost_price: e.target.value,
+                          })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[4.5rem]"
+                        type="number"
+                        value={row.stock}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            stock: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[10rem]"
+                        value={row.short_description}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            short_description: e.target.value,
+                          })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[10rem]"
+                        value={row.image_url}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            image_url: e.target.value,
+                          })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <div className="flex flex-col gap-1 text-xs">
+                        <label className="inline-flex items-center gap-1">
+                          <input
+                            type="checkbox"
+                            checked={row.is_featured}
+                            onChange={(e) =>
+                              updateImportRow(row.key, {
+                                is_featured: e.target.checked,
+                              })
+                            }
+                          />
+                          Featured
+                        </label>
+                        <label className="inline-flex items-center gap-1">
+                          <input
+                            type="checkbox"
+                            checked={row.is_active}
+                            onChange={(e) =>
+                              updateImportRow(row.key, {
+                                is_active: e.target.checked,
+                              })
+                            }
+                          />
+                          Active
+                        </label>
+                      </div>
+                    </td>
+                    <td className="text-right">
+                      <button
+                        type="button"
+                        className="admin-btn-danger"
+                        disabled={importing}
+                        onClick={() =>
+                          setImportRows((rows) =>
+                            rows.filter((r) => r.key !== row.key),
+                          )
+                        }
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <form
         onSubmit={onSubmit}
