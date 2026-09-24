@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { ShoppingBag } from 'lucide-react'
 import { api } from '../api/client'
 import type { Product } from '../api/types'
@@ -10,6 +10,8 @@ import { useCart } from '../store/cart'
 
 export default function ProductDetailPage() {
   const { slug = '' } = useParams()
+  const [searchParams] = useSearchParams()
+  const colorFromUrl = searchParams.get('color') || ''
   const [product, setProduct] = useState<Product | null>(null)
   const [error, setError] = useState('')
   const [qty, setQty] = useState(1)
@@ -31,6 +33,11 @@ export default function ProductDetailPage() {
       .then((p) => {
         if (!cancelled) {
           setProduct(p)
+          const available = normalizeColors(p.colors)
+          const fromUrl = available.find(
+            (c) => c.name.toLowerCase() === colorFromUrl.toLowerCase(),
+          )
+          setSelectedColor(fromUrl?.name || available[0]?.name || '')
           trackEvent('view_item', {
             item_id: p.sku,
             item_name: p.name,
@@ -44,7 +51,7 @@ export default function ProductDetailPage() {
     return () => {
       cancelled = true
     }
-  }, [slug])
+  }, [slug, colorFromUrl])
 
   const colors = useMemo(
     () => normalizeColors(product?.colors),
@@ -137,11 +144,16 @@ export default function ProductDetailPage() {
           </p>
 
           {colors.length > 0 && (
-            <div className="mt-8">
-              <p className="font-mono-label text-muted">
-                Color{selectedColor ? ` · ${selectedColor}` : ' · choose one'}
+            <div className="mt-8 rounded-[1.25rem] border border-border bg-surface p-5">
+              <p className="font-display text-lg font-bold tracking-[-0.04em] text-ink">
+                Select colour
               </p>
-              <div className="mt-3 flex flex-wrap gap-2.5">
+              <p className="mt-1 text-sm text-muted">
+                {selectedColor
+                  ? `Showing ${selectedColor}`
+                  : 'Tap a colour to see that finish'}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
                 {colors.map((c) => {
                   const active = selectedColor === c.name
                   return (
@@ -155,31 +167,39 @@ export default function ProductDetailPage() {
                         setSelectedColor(c.name)
                         setColorError('')
                       }}
-                      className={`relative h-12 w-12 overflow-hidden rounded-full border-2 transition ${
-                        active
-                          ? 'border-ink scale-110 shadow-[0_8px_20px_rgba(17,17,17,0.18)]'
-                          : 'border-border hover:border-ink/40'
-                      }`}
-                      style={
-                        c.image_url
-                          ? undefined
-                          : { backgroundColor: c.hex }
-                      }
+                      className={`relative flex flex-col items-center gap-1.5`}
                     >
-                      {c.image_url ? (
-                        <img
-                          src={c.image_url}
-                          alt=""
-                          className="h-full w-full object-cover"
-                        />
-                      ) : null}
-                      <span className="sr-only">{c.name}</span>
+                      <span
+                        className={`relative h-14 w-14 overflow-hidden rounded-full border-2 transition ${
+                          active
+                            ? 'border-ink scale-105 shadow-[0_8px_20px_rgba(17,17,17,0.18)]'
+                            : 'border-border hover:border-ink/40'
+                        }`}
+                        style={
+                          c.image_url ? undefined : { backgroundColor: c.hex }
+                        }
+                      >
+                        {c.image_url ? (
+                          <img
+                            src={c.image_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : null}
+                      </span>
+                      <span
+                        className={`text-xs font-medium ${
+                          active ? 'text-ink' : 'text-muted'
+                        }`}
+                      >
+                        {c.name}
+                      </span>
                     </button>
                   )
                 })}
               </div>
               {colorError && (
-                <p className="mt-2 text-sm text-accent">{colorError}</p>
+                <p className="mt-3 text-sm text-accent">{colorError}</p>
               )}
             </div>
           )}

@@ -107,9 +107,9 @@ export default function ProductCard({
         {hasColors ? (
           <Link
             to={`/products/${product.slug}`}
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white opacity-100 transition sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white"
           >
-            Choose color
+            Choose colour
           </Link>
         ) : (
           <button
@@ -132,20 +132,34 @@ export default function ProductCard({
           {product.name}
         </Link>
         {hasColors && (
-          <div className="mt-2 flex items-center gap-1.5">
-            {colors.slice(0, 5).map((c) => (
-              <span
-                key={c.name}
-                title={c.name}
-                className="h-3.5 w-3.5 rounded-full border border-border"
-                style={{ backgroundColor: c.hex }}
-              />
-            ))}
-            {colors.length > 5 && (
-              <span className="font-mono-label text-muted">
-                +{colors.length - 5}
-              </span>
-            )}
+          <div className="mt-2.5">
+            <p className="font-mono-label mb-1.5 text-muted">
+              {colors.length} colour{colors.length === 1 ? '' : 's'}
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {colors.slice(0, 6).map((c) => (
+                <Link
+                  key={c.name}
+                  to={`/products/${product.slug}?color=${encodeURIComponent(c.name)}`}
+                  title={c.name}
+                  className="h-7 w-7 overflow-hidden rounded-full border border-border shadow-sm transition hover:scale-110"
+                  style={c.image_url ? undefined : { backgroundColor: c.hex }}
+                >
+                  {c.image_url ? (
+                    <img
+                      src={c.image_url}
+                      alt={c.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                </Link>
+              ))}
+              {colors.length > 6 && (
+                <span className="font-mono-label text-muted">
+                  +{colors.length - 6}
+                </span>
+              )}
+            </div>
           </div>
         )}
         <div className="mt-2 flex items-baseline gap-2">
