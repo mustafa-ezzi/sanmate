@@ -91,31 +91,17 @@ export default function Header() {
           isHome && scrolled ? 'bg-bg/90 backdrop-blur-md' : ''
         }`}
       >
-        <div className="page-shell flex h-[4.25rem] items-center justify-between gap-4">
-          <Link to="/" className="flex min-w-0 items-center gap-3">
+        <div className="page-shell flex h-[5rem] items-center justify-between gap-4 sm:h-[5.5rem]">
+          <Link
+            to="/"
+            className="flex shrink-0 items-center"
+            aria-label="SAMS Enterprises home"
+          >
             <img
-              src="/images/sams-logo.jpg"
+              src="/images/logo.png"
               alt="SAMS Enterprises"
-              className={`h-9 w-9 rounded-full object-cover ${
-                overHero ? 'ring-1 ring-white/30' : 'ring-1 ring-border'
-              }`}
+              className="h-[3.75rem] w-[5.25rem] object-cover object-[center_12%] sm:h-[4.5rem] sm:w-[6.25rem]"
             />
-            <div className="min-w-0 leading-tight">
-              <p
-                className={`truncate font-display text-sm font-extrabold tracking-[-0.05em] sm:text-base ${
-                  overHero ? 'text-white' : 'text-ink'
-                }`}
-              >
-                SAMS Enterprises
-              </p>
-              <p
-                className={`font-mono-label hidden sm:block ${
-                  overHero ? 'text-white/60' : 'text-muted'
-                }`}
-              >
-                House of brands
-              </p>
-            </div>
           </Link>
 
           <nav className="hidden items-center gap-7 lg:flex">
