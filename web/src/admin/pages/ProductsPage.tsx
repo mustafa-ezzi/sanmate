@@ -154,23 +154,30 @@ export default function ProductsAdminPage() {
   }
 
   async function addAllImported() {
-    if (!importRows.length) return
+    const selectedRows = importRows.filter((row) => row.selected)
+    if (!selectedRows.length) {
+      setError('Select at least one product to add.')
+      return
+    }
     setImporting(true)
     setError('')
     setImportStatus('')
     let created = 0
     const failures: string[] = []
+    const failedKeys = new Set<string>()
 
-    for (const [index, row] of importRows.entries()) {
+    for (const [index, row] of selectedRows.entries()) {
       if (!row.name.trim() || !row.sku.trim() || !row.category) {
         failures.push(`Row ${index + 1}: name, SKU, and brand are required`)
+        failedKeys.add(row.key)
         continue
       }
       try {
         await adminApi.products.create(toPayload(row))
         created += 1
-        setImportStatus(`Adding products… ${created}/${importRows.length}`)
+        setImportStatus(`Adding products… ${created}/${selectedRows.length}`)
       } catch (err) {
+        failedKeys.add(row.key)
         failures.push(
           `Row ${index + 1} (${row.sku || row.name}): ${
             err instanceof Error ? err.message : 'failed'
@@ -182,9 +189,14 @@ export default function ProductsAdminPage() {
     setImporting(false)
     await load()
 
+    // Keep unchecked rows + any selected rows that failed
+    setImportRows((rows) =>
+      rows.filter((row) => !row.selected || failedKeys.has(row.key)),
+    )
+
     if (failures.length) {
       setError(
-        `Added ${created} of ${importRows.length}. ${failures.slice(0, 5).join(' · ')}${
+        `Added ${created} of ${selectedRows.length}. ${failures.slice(0, 5).join(' · ')}${
           failures.length > 5 ? ` · +${failures.length - 5} more` : ''
         }`,
       )
@@ -193,8 +205,18 @@ export default function ProductsAdminPage() {
     }
 
     setImportStatus(`Added ${created} products successfully.`)
-    setImportRows([])
-    setImportFileName('')
+    if (selectedRows.length === importRows.length) {
+      setImportFileName('')
+    }
+  }
+
+  const selectedCount = importRows.filter((r) => r.selected).length
+  const allSelected =
+    importRows.length > 0 && selectedCount === importRows.length
+  const someSelected = selectedCount > 0 && !allSelected
+
+  function toggleSelectAll(checked: boolean) {
+    setImportRows((rows) => rows.map((row) => ({ ...row, selected: checked })))
   }
 
   return (
@@ -247,13 +269,15 @@ export default function ProductsAdminPage() {
                 <button
                   type="button"
                   className="btn"
-                  disabled={importing || !categories.length}
+                  disabled={
+                    importing || !categories.length || selectedCount === 0
+                  }
                   onClick={addAllImported}
                 >
                   <Plus size={15} />
                   {importing
                     ? 'Adding…'
-                    : `Add all ${importRows.length} products`}
+                    : `Add ${selectedCount} selected`}
                 </button>
                 <button
                   type="button"
@@ -275,7 +299,9 @@ export default function ProductsAdminPage() {
         {importFileName && (
           <p className="text-xs text-slate-500">
             Scanned <span className="font-medium text-slate-700">{importFileName}</span>
-            {importRows.length ? ` · ${importRows.length} rows` : ''}
+            {importRows.length
+              ? ` · ${importRows.length} rows · ${selectedCount} selected`
+              : ''}
           </p>
         )}
 
@@ -286,6 +312,17 @@ export default function ProductsAdminPage() {
             <table className="admin-table min-w-[1100px]">
               <thead>
                 <tr>
+                  <th className="w-10">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all products"
+                      checked={allSelected}
+                      ref={(el) => {
+                        if (el) el.indeterminate = someSelected
+                      }}
+                      onChange={(e) => toggleSelectAll(e.target.checked)}
+                    />
+                  </th>
                   <th>Brand</th>
                   <th>Name</th>
                   <th>SKU</th>
@@ -302,7 +339,22 @@ export default function ProductsAdminPage() {
               </thead>
               <tbody>
                 {importRows.map((row) => (
-                  <tr key={row.key}>
+                  <tr
+                    key={row.key}
+                    className={row.selected ? undefined : 'opacity-50'}
+                  >
+                    <td>
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${row.name || row.sku}`}
+                        checked={row.selected}
+                        onChange={(e) =>
+                          updateImportRow(row.key, {
+                            selected: e.target.checked,
+                          })
+                        }
+                      />
+                    </td>
                     <td>
                       <select
                         className="field min-w-[8rem]"

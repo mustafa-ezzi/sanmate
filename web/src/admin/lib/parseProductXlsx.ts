@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 
 export type ImportProductRow = {
   key: string
+  selected: boolean
   category: number
   categoryLabel: string
   name: string
@@ -112,6 +113,7 @@ export function parseProductXlsx(
 
       return {
         key: `row-${index}-${sku || name}`,
+        selected: true,
         category: resolved.id,
         categoryLabel: resolved.label,
         name: name || sku,
