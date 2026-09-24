@@ -85,7 +85,7 @@ export default function BrandPage() {
       <div className="page-shell py-16 sm:py-20">
         <SectionHeading
           eyebrow={`${products.length} products`}
-          title={`${category.name} edit`}
+          title={`${category.name}`}
           subtitle="The same catalogue language — tone shifts with the brand."
         />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 sm:gap-6">
