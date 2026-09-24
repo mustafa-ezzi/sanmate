@@ -534,94 +534,156 @@ export default function ProductsAdminPage() {
 
       <form
         onSubmit={onSubmit}
-        className="admin-card grid gap-3 p-5 sm:grid-cols-2"
+        className="admin-card grid gap-4 p-5 sm:grid-cols-2"
       >
-        <select
-          className="field"
-          value={form.category}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, category: Number(e.target.value) }))
-          }
-          required
-        >
-          <option value={0} disabled>
-            Select brand
-          </option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">Brand</span>
+          <select
+            className="field"
+            value={form.category}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, category: Number(e.target.value) }))
+            }
+            required
+          >
+            <option value={0} disabled>
+              Select brand
             </option>
-          ))}
-        </select>
-        <input
-          className="field"
-          placeholder="SKU"
-          required
-          value={form.sku}
-          onChange={(e) => setForm((f) => ({ ...f, sku: e.target.value }))}
-        />
-        <input
-          className="field"
-          placeholder="Name"
-          required
-          value={form.name}
-          onChange={(e) =>
-            setForm((f) => ({
-              ...f,
-              name: e.target.value,
-              slug: editing
-                ? f.slug
-                : e.target.value.toLowerCase().replace(/\s+/g, '-'),
-            }))
-          }
-        />
-        <input
-          className="field"
-          placeholder="Slug"
-          required
-          value={form.slug}
-          onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-        />
-        <input
-          className="field"
-          placeholder="Price (PKR)"
-          required
-          value={form.price}
-          onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-        />
-        <input
-          className="field"
-          placeholder="Sale price"
-          value={form.sale_price}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, sale_price: e.target.value }))
-          }
-        />
-        <input
-          className="field"
-          placeholder="Cost price (profit)"
-          value={form.cost_price}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, cost_price: e.target.value }))
-          }
-        />
-        <input
-          className="field"
-          type="number"
-          placeholder="Stock"
-          value={form.stock}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, stock: Number(e.target.value) }))
-          }
-        />
-        <input
-          className="field sm:col-span-2"
-          placeholder="Short description"
-          value={form.short_description}
-          onChange={(e) =>
-            setForm((f) => ({ ...f, short_description: e.target.value }))
-          }
-        />
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">SKU</span>
+          <input
+            className="field"
+            placeholder="e.g. AME - 0002"
+            required
+            value={form.sku}
+            onChange={(e) => setForm((f) => ({ ...f, sku: e.target.value }))}
+          />
+          <span className="text-xs text-slate-500">
+            Unique product code for inventory / orders.
+          </span>
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">
+            Product name
+          </span>
+          <input
+            className="field"
+            placeholder="e.g. 3 Basket Set"
+            required
+            value={form.name}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                name: e.target.value,
+                slug: editing
+                  ? f.slug
+                  : e.target.value.toLowerCase().replace(/\s+/g, '-'),
+              }))
+            }
+          />
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">URL slug</span>
+          <input
+            className="field"
+            placeholder="e.g. 3-basket-set"
+            required
+            value={form.slug}
+            onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+          />
+          <span className="text-xs text-slate-500">
+            Used in the product page link: /products/…
+          </span>
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">
+            Price (PKR)
+          </span>
+          <input
+            className="field"
+            placeholder="Regular selling price"
+            required
+            value={form.price}
+            onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+          />
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">
+            Sale price (optional)
+          </span>
+          <input
+            className="field"
+            placeholder="Leave blank if not on sale"
+            value={form.sale_price}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, sale_price: e.target.value }))
+            }
+          />
+          <span className="text-xs text-slate-500">
+            Discounted price shown to customers when set.
+          </span>
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">
+            Cost price (optional)
+          </span>
+          <input
+            className="field"
+            placeholder="Your cost — for profit reports"
+            value={form.cost_price}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, cost_price: e.target.value }))
+            }
+          />
+          <span className="text-xs text-slate-500">
+            Admin only — not shown on the shop.
+          </span>
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-sm font-medium text-slate-700">Stock</span>
+          <input
+            className="field"
+            type="number"
+            min={0}
+            placeholder="How many units available"
+            value={form.stock}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, stock: Number(e.target.value) }))
+            }
+          />
+          <span className="text-xs text-slate-500">
+            Quantity in inventory. Shown as “in stock” when above 0.
+          </span>
+        </label>
+
+        <label className="block space-y-1.5 sm:col-span-2">
+          <span className="text-sm font-medium text-slate-700">
+            Short description
+          </span>
+          <input
+            className="field"
+            placeholder="One-line summary under the product name"
+            value={form.short_description}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, short_description: e.target.value }))
+            }
+          />
+        </label>
+
         <div className="sm:col-span-2">
           <p className="mb-2 text-sm font-medium text-slate-700">
             Color options
@@ -650,7 +712,7 @@ export default function ProductsAdminPage() {
               setForm((f) => ({ ...f, is_featured: e.target.checked }))
             }
           />
-          Featured
+          Featured (show on homepage)
         </label>
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -660,7 +722,7 @@ export default function ProductsAdminPage() {
               setForm((f) => ({ ...f, is_active: e.target.checked }))
             }
           />
-          Active
+          Active (visible in shop)
         </label>
         <div className="sm:col-span-2 flex gap-2">
           <button type="submit" className="btn" disabled={!categories.length}>
