@@ -74,7 +74,7 @@ export function colorsToInput(colors: ProductColor[] | undefined | null): string
 export function normalizeColors(raw: unknown): ProductColor[] {
   if (!Array.isArray(raw)) return []
   return raw
-    .map((item) => {
+    .map((item): ProductColor | null => {
       if (typeof item === 'string') {
         const name = item.trim()
         return name ? { ...resolvePreset(name), image_url: '' } : null
