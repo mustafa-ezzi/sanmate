@@ -689,9 +689,9 @@ export default function ProductsAdminPage() {
             Color options
           </p>
           <p className="mb-3 text-xs text-slate-500">
-            One product, multiple finishes. Pick a color and upload that
-            finish&apos;s photo — shoppers see the matching picture when they
-            select it.
+            One product, multiple finishes. Use a preset or add a custom colour
+            (name + colour picker), then upload that finish&apos;s photo —
+            shoppers see the matching picture when they select it.
           </p>
           <ColorOptionsEditor
             value={form.colors}
