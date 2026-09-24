@@ -219,9 +219,10 @@ export default function ProductsAdminPage() {
             </div>
             <p className="text-sm text-slate-500">
               Upload a spreadsheet, review/edit every field in the table, then
-              add all products at once. Accepted headers: name, sku, brand /
-              category, price, sale_price, cost_price, stock, slug,
-              short_description, description, image_url, featured, active.
+              add all products at once. Upload a product photo per row (goes to
+              R2). Accepted headers: name, sku, brand / category, price,
+              sale_price, cost_price, stock, slug, short_description,
+              description, featured, active.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -294,7 +295,7 @@ export default function ProductsAdminPage() {
                   <th>Cost</th>
                   <th>Stock</th>
                   <th>Short description</th>
-                  <th>Image URL</th>
+                  <th>Image</th>
                   <th>Flags</th>
                   <th />
                 </tr>
@@ -401,13 +402,11 @@ export default function ProductsAdminPage() {
                       />
                     </td>
                     <td>
-                      <input
-                        className="field min-w-[10rem]"
+                      <ImageUploadField
+                        compact
                         value={row.image_url}
-                        onChange={(e) =>
-                          updateImportRow(row.key, {
-                            image_url: e.target.value,
-                          })
+                        onChange={(url) =>
+                          updateImportRow(row.key, { image_url: url })
                         }
                       />
                     </td>

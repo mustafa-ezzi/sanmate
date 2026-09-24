@@ -3,18 +3,21 @@ import { useRef, useState } from 'react'
 import { adminApi } from '../api'
 
 type Props = {
-  label: string
-  shownOn: string
+  label?: string
+  shownOn?: string
   value: string
   onChange: (url: string) => void
+  /** Compact cell for import tables */
+  compact?: boolean
 }
 
 /** File picker → upload → stores returned URL in parent form (DB field). */
 export default function ImageUploadField({
-  label,
-  shownOn,
+  label = 'Image',
+  shownOn = '',
   value,
   onChange,
+  compact = false,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
@@ -35,11 +38,50 @@ export default function ImageUploadField({
     }
   }
 
+  if (compact) {
+    return (
+      <div className="flex min-w-[9.5rem] flex-col items-start gap-1.5">
+        <div className="h-14 w-14 overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+          {value ? (
+            <img src={value} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <div className="grid h-full place-items-center text-[10px] text-slate-400">
+              No img
+            </div>
+          )}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
+          disabled={uploading}
+          onChange={(e) => void onFile(e.target.files?.[0])}
+          className="block max-w-[9.5rem] text-[11px] file:mr-2 file:rounded-md file:border-0 file:bg-[#171c4e] file:px-2 file:py-1 file:text-[11px] file:font-semibold file:text-white"
+        />
+        <p className="text-[10px] text-slate-500">
+          {uploading ? 'Uploading to R2…' : 'Upload image'}
+        </p>
+        {value && (
+          <button
+            type="button"
+            className="text-[10px] font-medium text-red-600 hover:underline"
+            onClick={() => onChange('')}
+          >
+            Remove
+          </button>
+        )}
+        {error && <p className="text-[10px] text-red-600">{error}</p>}
+      </div>
+    )
+  }
+
   return (
     <div className="sm:col-span-2 space-y-2">
       <div>
         <p className="text-sm font-medium text-slate-700">{label}</p>
-        <p className="mt-0.5 text-xs text-slate-500">{shownOn}</p>
+        {shownOn && (
+          <p className="mt-0.5 text-xs text-slate-500">{shownOn}</p>
+        )}
       </div>
       <div className="flex flex-wrap items-start gap-4">
         <div className="h-24 w-24 rounded-xl border border-slate-200 bg-slate-50 overflow-hidden flex items-center justify-center text-xs text-slate-400">
@@ -79,4 +121,3 @@ export default function ImageUploadField({
     </div>
   )
 }
-
