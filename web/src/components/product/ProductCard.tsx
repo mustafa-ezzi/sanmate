@@ -142,17 +142,9 @@ export default function ProductCard({
                   key={c.name}
                   to={`/products/${product.slug}?color=${encodeURIComponent(c.name)}`}
                   title={c.name}
-                  className="h-7 w-7 overflow-hidden rounded-full border border-border shadow-sm transition hover:scale-110"
-                  style={c.image_url ? undefined : { backgroundColor: c.hex }}
-                >
-                  {c.image_url ? (
-                    <img
-                      src={c.image_url}
-                      alt={c.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : null}
-                </Link>
+                  className="h-7 w-7 rounded-full border border-black/10 shadow-sm ring-1 ring-black/5 transition hover:scale-110"
+                  style={{ backgroundColor: c.hex }}
+                />
               ))}
               {colors.length > 6 && (
                 <span className="font-mono-label text-muted">

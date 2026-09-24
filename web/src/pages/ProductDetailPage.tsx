@@ -61,9 +61,29 @@ export default function ProductDetailPage() {
   const selected = colors.find((c) => c.name === selectedColor)
   const baseImage = product?.images?.[0]?.url || product?.primary_image || ''
   const displayImage = selected?.image_url || baseImage
+  const [activeImage, setActiveImage] = useState('')
+  const [fadeIn, setFadeIn] = useState(true)
 
   useEffect(() => {
+    if (!displayImage) {
+      setActiveImage('')
+      return
+    }
     setImgBroken(false)
+    if (!activeImage) {
+      setActiveImage(displayImage)
+      setFadeIn(true)
+      return
+    }
+    if (displayImage === activeImage) return
+    setFadeIn(false)
+    const t = window.setTimeout(() => {
+      setActiveImage(displayImage)
+      window.requestAnimationFrame(() => setFadeIn(true))
+    }, 220)
+    return () => window.clearTimeout(t)
+    // intentionally omit activeImage — we compare against it inside
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [displayImage])
 
   if (error) {
@@ -91,18 +111,17 @@ export default function ProductDetailPage() {
     <div className={`page-shell py-12 sm:py-16 brand-${tone}`}>
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <div className="relative aspect-square overflow-hidden rounded-[1.75rem] bg-surface shadow-[0_20px_60px_rgba(17,17,17,0.08)]">
-          {displayImage && !imgBroken ? (
+          {activeImage && !imgBroken ? (
             <img
-              key={displayImage}
-              src={displayImage}
+              src={activeImage}
               alt={
                 selected
                   ? `${product.name} — ${selected.name}`
                   : product.name
               }
-              className={`h-full w-full object-cover transition duration-500 ${
-                tone === 'wyped' ? 'img-wyped' : 'img-sanmate'
-              }`}
+              className={`h-full w-full object-cover transition-opacity duration-500 ease-out ${
+                fadeIn ? 'opacity-100' : 'opacity-0'
+              } ${tone === 'wyped' ? 'img-wyped' : 'img-sanmate'}`}
               onError={() => setImgBroken(true)}
             />
           ) : (
@@ -167,28 +186,18 @@ export default function ProductDetailPage() {
                         setSelectedColor(c.name)
                         setColorError('')
                       }}
-                      className={`relative flex flex-col items-center gap-1.5`}
+                      className="relative flex flex-col items-center gap-1.5"
                     >
                       <span
-                        className={`relative h-14 w-14 overflow-hidden rounded-full border-2 transition ${
+                        className={`relative h-11 w-11 rounded-full border-2 shadow-sm transition duration-300 ${
                           active
-                            ? 'border-ink scale-105 shadow-[0_8px_20px_rgba(17,17,17,0.18)]'
-                            : 'border-border hover:border-ink/40'
+                            ? 'scale-110 border-ink shadow-[0_8px_20px_rgba(17,17,17,0.18)]'
+                            : 'border-black/10 hover:scale-105 hover:border-ink/40'
                         }`}
-                        style={
-                          c.image_url ? undefined : { backgroundColor: c.hex }
-                        }
-                      >
-                        {c.image_url ? (
-                          <img
-                            src={c.image_url}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </span>
+                        style={{ backgroundColor: c.hex }}
+                      />
                       <span
-                        className={`text-xs font-medium ${
+                        className={`text-xs font-medium transition-colors ${
                           active ? 'text-ink' : 'text-muted'
                         }`}
                       >
