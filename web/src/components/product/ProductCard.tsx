@@ -104,14 +104,7 @@ export default function ProductCard({
           </span>
         )}
 
-        {hasColors ? (
-          <Link
-            to={`/products/${product.slug}`}
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white"
-          >
-            Choose colour
-          </Link>
-        ) : (
+        {!hasColors && (
           <button
             type="button"
             onClick={addToBag}
