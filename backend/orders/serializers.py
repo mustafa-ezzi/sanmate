@@ -109,7 +109,7 @@ def create_order_from_payload(company, data) -> Order:
                 raise serializers.ValidationError(
                     {"items": f"Invalid color “{color}” for {product.name}."}
                 )
-        if product.stock < qty:
+        if product.stock > 0 and product.stock < qty:
             raise serializers.ValidationError(
                 {"items": f"Insufficient stock for {product.name}."}
             )

@@ -13,10 +13,10 @@ pip install -r requirements.txt
 copy .env.example .env            # optional
 python manage.py migrate
 python manage.py seed_dev
-python manage.py runserver
+python manage.py runserver 8081
 ```
 
-- Django admin: http://127.0.0.1:8000/django-admin/ (`admin` / `admin123`)
+- Django admin: http://127.0.0.1:8081/django-admin/ (`admin` / `admin123`)
 - API root examples below
 
 SQLite is used by default. Set `DATABASE_URL=postgres://...` for PostgreSQL.

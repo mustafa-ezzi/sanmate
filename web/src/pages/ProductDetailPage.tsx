@@ -139,8 +139,8 @@ export default function ProductDetailPage() {
             )}
           </div>
           <p className="font-mono-label mt-4 text-muted">
-            SKU {product.sku} ·{' '}
-            {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+            SKU {product.sku}
+            {product.stock > 0 ? ` · ${product.stock} in stock` : ''}
           </p>
 
           {colors.length > 0 && (
@@ -227,7 +227,6 @@ export default function ProductDetailPage() {
             <button
               type="button"
               className="btn-primary"
-              disabled={product.stock < 1}
               onClick={() => {
                 if (colors.length > 0 && !selectedColor) {
                   setColorError('Please select a color')

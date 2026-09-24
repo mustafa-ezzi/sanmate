@@ -8,7 +8,7 @@ React + Vite + Tailwind + GSAP + Framer Motion + Lenis.
 
 ```bash
 .\.venv\Scripts\activate
-python manage.py runserver
+python manage.py runserver 8081
 ```
 
 2. Start storefront:
@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 — Vite proxies `/api` → `http://127.0.0.1:8000`.
+Open http://localhost:5173 — Vite proxies `/api` → `http://127.0.0.1:8081`.
 
 ## Env
 
@@ -45,7 +45,7 @@ See `.env.example`:
 
 ### Admin (SAMS Enterprises only)
 
-1. API running on `:8000`
+1. API running on `:8081`
 2. Open http://localhost:5173/admin/login
 3. `admin` / `admin123`
 4. No company switcher — everything is SAMS
