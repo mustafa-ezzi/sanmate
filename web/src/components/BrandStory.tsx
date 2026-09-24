@@ -24,8 +24,9 @@ export default function BrandStory() {
           </FadeUp>
           <FadeUp delay={0.18}>
             <p className="text-muted text-base sm:text-lg leading-relaxed max-w-md">
-              SANMATE designs sanitary essentials the way Apple designs devices —
-              minimal, cinematic, and product-first. Two pieces. Endless calm under the basin.
+              SAMS designs household essentials the way considered brands shape
+              spaces — minimal, cinematic, and product-first. Distinct
+              collections under one house.
             </p>
           </FadeUp>
           <FadeUp delay={0.24}>

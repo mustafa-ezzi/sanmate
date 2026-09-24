@@ -14,13 +14,13 @@ import ScrollVelocity from '../components/bits/ScrollVelocity'
 import AnimatedContent from '../components/bits/AnimatedContent'
 import GlareHover from '../components/bits/GlareHover'
 
-type BrandFilter = 'all' | 'sanmate' | 'wyped'
+type BrandFilter = string
 
 const tickerItems = [
   'SAMS Enterprises',
-  'House of Sanmate & Wype',
+  'A house of brands',
   'Designed for Pakistani homes',
-  'Premium household brands',
+  'Premium household collections',
   'Free delivery over Rs 5,000',
 ]
 
@@ -151,8 +151,8 @@ export default function HomePage() {
       <section id="collections" className="page-shell scroll-mt-24 py-20 sm:py-28">
         <SectionHeading
           eyebrow="Our brands"
-          title="Two worlds under SAMS."
-          subtitle="Sanmate and Wype keep their own tone — both belong to the house."
+          title="Collections under SAMS."
+          subtitle="Each brand keeps its own tone — all belong to the house."
         />
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           {categories.map((cat, i) => {
@@ -207,34 +207,41 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="From the house"
             title="Products made to be noticed."
-            subtitle="A curated edit across Sanmate and Wype."
+            subtitle="A curated edit across every SAMS collection."
           />
           <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-10">
             <div
               role="tablist"
               aria-label="Filter by brand"
-              className="inline-flex rounded-full border border-border bg-surface p-1"
+              className="inline-flex flex-wrap rounded-full border border-border bg-surface p-1"
             >
-              {(
-                [
-                  ['all', 'All'],
-                  ['sanmate', 'Sanmate'],
-                  ['wyped', 'Wype'],
-                ] as const
-              ).map(([value, label]) => (
+              <button
+                type="button"
+                role="tab"
+                aria-selected={filter === 'all'}
+                onClick={() => setRailFilter('all')}
+                className={`rounded-full px-3.5 py-2 font-mono-label transition ${
+                  filter === 'all'
+                    ? 'bg-house text-white'
+                    : 'text-muted hover:text-ink'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((c) => (
                 <button
-                  key={value}
+                  key={c.id}
                   type="button"
                   role="tab"
-                  aria-selected={filter === value}
-                  onClick={() => setRailFilter(value)}
+                  aria-selected={filter === c.slug}
+                  onClick={() => setRailFilter(c.slug)}
                   className={`rounded-full px-3.5 py-2 font-mono-label transition ${
-                    filter === value
+                    filter === c.slug
                       ? 'bg-house text-white'
                       : 'text-muted hover:text-ink'
                   }`}
                 >
-                  {label}
+                  {c.name}
                 </button>
               ))}
             </div>

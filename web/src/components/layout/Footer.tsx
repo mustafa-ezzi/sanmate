@@ -1,9 +1,19 @@
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api } from '../../api/client'
+import type { Category } from '../../api/types'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
+  const [brands, setBrands] = useState<Category[]>([])
+
+  useEffect(() => {
+    api
+      .categories()
+      .then((r) => setBrands(r.results))
+      .catch(() => setBrands([]))
+  }, [])
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -18,11 +28,11 @@ export default function Footer() {
           <div>
             <p className="font-mono-label text-white/45">SAMS Enterprises</p>
             <h2 className="mt-4 max-w-xl font-display text-[clamp(2rem,4vw,3.4rem)] font-extrabold leading-[.92] tracking-[-0.08em]">
-              Two collections. One house of considered products.
+              Many brands. One house of considered products.
             </h2>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-white/60 sm:text-base">
-              Sanmate brings calm sanitary precision. Wype brings charged
-              cleaning energy. Both live under SAMS.
+              Distinct collections under SAMS — each with its own tone, all built
+              for the rooms you use every day.
             </p>
           </div>
 
@@ -74,14 +84,15 @@ export default function Footer() {
 
           <div className="flex flex-wrap gap-x-6 gap-y-3">
             {[
-              ['/products', 'Shop'],
-              ['/brands/sanmate', 'Sanmate'],
-              ['/brands/wyped', 'Wype'],
-              ['/policies/privacy', 'Privacy'],
-              ['/policies/return', 'Returns'],
-              ['/policies/exchange', 'Exchange'],
-              ['/policies/shipping', 'Shipping'],
-              ['/policies/terms', 'Terms'],
+              ['/products', 'Shop'] as const,
+              ...brands.map(
+                (b) => [`/brands/${b.slug}`, b.name] as [string, string],
+              ),
+              ['/policies/privacy', 'Privacy'] as const,
+              ['/policies/return', 'Returns'] as const,
+              ['/policies/exchange', 'Exchange'] as const,
+              ['/policies/shipping', 'Shipping'] as const,
+              ['/policies/terms', 'Terms'] as const,
             ].map(([to, label]) => (
               <Link
                 key={to}

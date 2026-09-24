@@ -40,7 +40,7 @@ export default function BuyProducts() {
             Shop the collection
           </h2>
           <p className="text-muted text-sm mt-3 max-w-md">
-            Two precision products. Order directly — we reply fast.
+            Precision products across the house. Order directly — we reply fast.
           </p>
         </FadeUp>
 

@@ -279,7 +279,7 @@ export default function BannersPage() {
                   />
                   <input
                     className="field"
-                    placeholder="Link (e.g. /brands/sanmate)"
+                    placeholder="Link (e.g. /brands/your-brand)"
                     value={slide.link}
                     onChange={(e) =>
                       setSlides((all) =>

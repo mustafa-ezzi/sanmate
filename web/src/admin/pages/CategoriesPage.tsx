@@ -48,7 +48,7 @@ export default function CategoriesPage() {
         icon={Tags}
         eyebrow="Catalogue"
         title="Child brands"
-        subtitle="Create child brands for SAMS (e.g. Sanmate, Wype)."
+        subtitle="Create child brands for SAMS (as many as you need)."
       />
 
       <form onSubmit={onSubmit} className="admin-card grid gap-3 p-5 sm:grid-cols-2">
@@ -90,7 +90,7 @@ export default function CategoriesPage() {
         />
         <ImageUploadField
           label="Brand hero image"
-          shownOn="Displayed on the homepage hero carousel, the brand collection card, and the top of the brand page (e.g. /brands/sanmate)."
+          shownOn="Displayed on the homepage hero carousel, the brand collection card, and the top of the brand page (e.g. /brands/your-brand)."
           value={form.hero_image_url}
           onChange={(url) => setForm((f) => ({ ...f, hero_image_url: url }))}
         />

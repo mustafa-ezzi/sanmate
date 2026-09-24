@@ -1,15 +1,10 @@
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Menu, Search, ShoppingBag, X } from 'lucide-react'
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useState } from 'react'
+import { api } from '../../api/client'
+import type { Category } from '../../api/types'
 import { formatPKR } from '../../lib/format'
 import { useCart } from '../../store/cart'
-
-const links = [
-  { to: '/products', label: 'Shop' },
-  { to: '/brands/sanmate', label: 'Sanmate' },
-  { to: '/brands/wyped', label: 'Wype' },
-  { to: '/policies/shipping', label: 'Shipping' },
-]
 
 export default function Header() {
   const navigate = useNavigate()
@@ -20,11 +15,28 @@ export default function Header() {
   const [bagOpen, setBagOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [scrolled, setScrolled] = useState(false)
+  const [brands, setBrands] = useState<Category[]>([])
   const lines = useCart((s) => s.lines)
   const count = useCart((s) => s.lines.reduce((n, l) => n + l.quantity, 0))
   const subtotal = useCart((s) => s.subtotal)
 
   const overHero = isHome && !scrolled && !menuOpen
+
+  const links = useMemo(
+    () => [
+      { to: '/products', label: 'Shop' },
+      ...brands.map((b) => ({ to: `/brands/${b.slug}`, label: b.name })),
+      { to: '/policies/shipping', label: 'Shipping' },
+    ],
+    [brands],
+  )
+
+  useEffect(() => {
+    api
+      .categories()
+      .then((r) => setBrands(r.results))
+      .catch(() => setBrands([]))
+  }, [])
 
   useEffect(() => {
     document.body.style.overflow =
@@ -101,7 +113,7 @@ export default function Header() {
                   overHero ? 'text-white/60' : 'text-muted'
                 }`}
               >
-                House of Sanmate & Wype
+                House of brands
               </p>
             </div>
           </Link>
@@ -215,7 +227,7 @@ export default function Header() {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search Sanmate, Wype…"
+                placeholder="Search products…"
                 className="w-full rounded-xl border border-border bg-bg px-4 py-3 text-base outline-none focus:border-navy/40"
               />
               <button type="submit" className="btn-primary mt-4 w-full">
@@ -259,7 +271,7 @@ export default function Header() {
                     Your bag is empty
                   </p>
                   <p className="mt-2 text-sm text-muted">
-                    Explore Sanmate and Wype to get started.
+                    Explore the catalogue to get started.
                   </p>
                   <Link
                     to="/products"

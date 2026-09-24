@@ -18,29 +18,11 @@ const fallbackSlides: HeroSlide[] = [
   {
     id: 'sams',
     eyebrow: 'SAMS Enterprises',
-    title: 'Sanitary ware, rebuilt for the modern home.',
+    title: 'Household brands, rebuilt for the modern home.',
     subtitle:
-      'Two collections under one house — considered fittings for Pakistani bathrooms.',
+      'Distinct collections under one house — designed for Pakistani homes.',
     ctaLabel: 'Shop the house',
     ctaLink: '/products',
-  },
-  {
-    id: 'sanmate',
-    eyebrow: 'Sanmate',
-    title: 'Quiet precision for daily ritual.',
-    subtitle:
-      'Tactile sanitary fittings designed to feel calm, considered, and built to last.',
-    ctaLabel: 'Explore Sanmate',
-    ctaLink: '/brands/sanmate',
-  },
-  {
-    id: 'wyped',
-    eyebrow: 'Wype',
-    title: 'Cleaning energy with sharper intent.',
-    subtitle:
-      'Expressive household essentials with charged color and everyday power.',
-    ctaLabel: 'Explore Wype',
-    ctaLink: '/brands/wyped',
   },
 ]
 
@@ -77,7 +59,7 @@ export default function CinematicHero({ banners, carousel, categories }: Props) 
         id: `slide-${s.id}`,
         eyebrow: 'Collection',
         title: s.caption || 'Designed to be noticed.',
-        subtitle: 'Premium sanitary essentials from the SAMS house.',
+        subtitle: 'Premium essentials from the SAMS house.',
         ctaLabel: 'Learn more',
         ctaLink: s.link || '/products',
         image: s.image_url,

@@ -51,8 +51,8 @@ export default function LoginPage() {
             House admin
           </h1>
           <p className="mt-4 max-w-sm text-white/65">
-            Catalogue, orders, banners, and settings — one panel for Sanmate and
-            Wype.
+            Catalogue, orders, banners, and settings — one panel for every
+            SAMS brand.
           </p>
         </div>
 

@@ -66,8 +66,8 @@ export const specs = [
 
 export const faqs = [
   {
-    q: 'What products does SANMATE offer?',
-    a: 'We focus on two precision-engineered essentials: washbasin waste pipes and bottle traps — available in chrome and high-grade ABS finishes.',
+    q: 'What products does SAMS offer?',
+    a: 'SAMS is a house of household brands — sanitary fittings, cleaning essentials, and more collections under one roof.',
   },
   {
     q: 'Are the products corrosion resistant?',
