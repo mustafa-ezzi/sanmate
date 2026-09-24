@@ -160,6 +160,7 @@ export default function CheckoutPage() {
         items: lines.map((l) => ({
           product_slug: l.slug,
           quantity: l.quantity,
+          color: l.color || undefined,
         })),
       })
       setOrder(created)

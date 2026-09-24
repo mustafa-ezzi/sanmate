@@ -272,7 +272,7 @@ export default function Header() {
               ) : (
                 <ul className="space-y-4">
                   {lines.map((line) => (
-                    <li key={line.slug} className="flex gap-3">
+                    <li key={line.key} className="flex gap-3">
                       <div className="h-16 w-16 overflow-hidden rounded-xl bg-bg">
                         {line.image ? (
                           <img
@@ -292,6 +292,7 @@ export default function Header() {
                         </Link>
                         <p className="font-mono-label mt-1 text-muted">
                           Qty {line.quantity}
+                          {line.color ? ` · ${line.color}` : ''}
                         </p>
                         <p className="mt-1 text-sm font-semibold text-navy">
                           {formatPKR(Number(line.price) * line.quantity)}

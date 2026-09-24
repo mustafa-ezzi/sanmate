@@ -49,6 +49,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "category_slug",
             "category_name",
             "primary_image",
+            "colors",
         )
 
     def get_primary_image(self, obj):

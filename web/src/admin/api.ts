@@ -291,6 +291,7 @@ export type AdminProduct = {
   cost_price: string | null
   stock: number
   specs: Record<string, string>
+  colors?: { name: string; hex: string }[]
   is_featured: boolean
   is_active: boolean
   images?: { url: string; alt?: string; sort_order?: number }[]
@@ -347,6 +348,7 @@ export type AdminOrder = {
   whatsapp_notified: boolean
   items: {
     product_name: string
+    color?: string
     quantity: number
     unit_price: string
     line_total: string

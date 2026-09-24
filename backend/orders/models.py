@@ -80,6 +80,7 @@ class OrderItem(models.Model):
     )
     product_name = models.CharField(max_length=200)
     sku = models.CharField(max_length=64, blank=True)
+    color = models.CharField(max_length=80, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
     line_total = models.DecimalField(max_digits=12, decimal_places=2)

@@ -10,6 +10,7 @@ from .models import Order, OrderItem
 class OrderItemWriteSerializer(serializers.Serializer):
     product_slug = serializers.SlugField()
     quantity = serializers.IntegerField(min_value=1)
+    color = serializers.CharField(max_length=80, required=False, allow_blank=True)
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -34,6 +35,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "id",
             "product_name",
             "sku",
+            "color",
             "quantity",
             "unit_price",
             "line_total",
@@ -89,6 +91,24 @@ def create_order_from_payload(company, data) -> Order:
     for row in items_data:
         product = products[row["product_slug"]]
         qty = row["quantity"]
+        color = (row.get("color") or "").strip()
+        available = product.colors or []
+        color_names = []
+        for c in available:
+            if isinstance(c, dict):
+                color_names.append(str(c.get("name") or "").strip())
+            else:
+                color_names.append(str(c).strip())
+        color_names = [n for n in color_names if n]
+        if color_names:
+            if not color:
+                raise serializers.ValidationError(
+                    {"items": f"Please choose a color for {product.name}."}
+                )
+            if color not in color_names:
+                raise serializers.ValidationError(
+                    {"items": f"Invalid color “{color}” for {product.name}."}
+                )
         if product.stock < qty:
             raise serializers.ValidationError(
                 {"items": f"Insufficient stock for {product.name}."}
@@ -96,7 +116,7 @@ def create_order_from_payload(company, data) -> Order:
         unit = product.effective_price
         line_total = unit * qty
         subtotal += line_total
-        line_rows.append((product, qty, unit, line_total))
+        line_rows.append((product, qty, unit, line_total, color))
 
     shipping_fee = Decimal("0")
     total = subtotal + shipping_fee
@@ -123,12 +143,13 @@ def create_order_from_payload(company, data) -> Order:
         total=total,
         notes=data.get("notes", ""),
     )
-    for product, qty, unit, line_total in line_rows:
+    for product, qty, unit, line_total, color in line_rows:
         OrderItem.objects.create(
             order=order,
             product=product,
             product_name=product.name,
             sku=product.sku,
+            color=color,
             quantity=qty,
             unit_price=unit,
             line_total=line_total,

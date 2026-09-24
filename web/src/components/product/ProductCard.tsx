@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import type { Product } from '../../api/types'
 import { formatPKR } from '../../lib/format'
+import { normalizeColors } from '../../lib/colors'
 import { useCart } from '../../store/cart'
 import AnimatedContent from '../bits/AnimatedContent'
 import GlareHover from '../bits/GlareHover'
@@ -31,6 +32,8 @@ export default function ProductCard({
   const add = useCart((s) => s.add)
   const [fav, setFav] = useState(() => readFavorites().includes(product.slug))
   const [added, setAdded] = useState(false)
+  const colors = normalizeColors(product.colors)
+  const hasColors = colors.length > 0
   const imgClass =
     brandTone === 'wyped'
       ? 'img-wyped'
@@ -101,14 +104,23 @@ export default function ProductCard({
           </span>
         )}
 
-        <button
-          type="button"
-          onClick={addToBag}
-          className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white opacity-100 transition sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
-        >
-          <Plus size={16} />
-          {added ? 'Added to bag' : 'Add to bag'}
-        </button>
+        {hasColors ? (
+          <Link
+            to={`/products/${product.slug}`}
+            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white opacity-100 transition sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+          >
+            Choose color
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={addToBag}
+            className="absolute bottom-3 left-3 right-3 flex items-center justify-center gap-2 rounded-full bg-ink py-2.5 text-sm font-semibold text-white opacity-100 transition sm:translate-y-2 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+          >
+            <Plus size={16} />
+            {added ? 'Added to bag' : 'Add to bag'}
+          </button>
+        )}
       </GlareHover>
 
       <div className="mt-4 px-0.5">
@@ -119,6 +131,23 @@ export default function ProductCard({
         >
           {product.name}
         </Link>
+        {hasColors && (
+          <div className="mt-2 flex items-center gap-1.5">
+            {colors.slice(0, 5).map((c) => (
+              <span
+                key={c.name}
+                title={c.name}
+                className="h-3.5 w-3.5 rounded-full border border-border"
+                style={{ backgroundColor: c.hex }}
+              />
+            ))}
+            {colors.length > 5 && (
+              <span className="font-mono-label text-muted">
+                +{colors.length - 5}
+              </span>
+            )}
+          </div>
+        )}
         <div className="mt-2 flex items-baseline gap-2">
           <span className="font-mono-label text-navy">
             {formatPKR(product.effective_price)}

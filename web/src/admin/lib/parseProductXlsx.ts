@@ -15,6 +15,7 @@ export type ImportProductRow = {
   cost_price: string
   stock: number
   image_url: string
+  colors: string
   is_featured: boolean
   is_active: boolean
 }
@@ -136,6 +137,7 @@ export function parseProductXlsx(
           'photo',
           'photo url',
         ]),
+        colors: cell(row, ['colors', 'colour', 'colours', 'color options']),
         is_featured: toBool(
           cell(row, ['is_featured', 'featured']),
           false,

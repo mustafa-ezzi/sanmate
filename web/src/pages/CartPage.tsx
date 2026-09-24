@@ -38,7 +38,7 @@ export default function CartPage() {
         <ul className="space-y-4">
           {lines.map((line) => (
             <li
-              key={line.slug}
+              key={line.key}
               className="flex items-center gap-4 rounded-[1.5rem] border border-border bg-surface p-4"
             >
               <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-bg text-center text-xs text-muted">
@@ -61,13 +61,14 @@ export default function CartPage() {
                 </Link>
                 <p className="font-mono-label mt-1 text-muted">
                   {formatPKR(line.price)}
+                  {line.color ? ` · ${line.color}` : ''}
                 </p>
                 <div className="mt-2 inline-flex items-center rounded-full border border-border bg-bg">
                   <button
                     type="button"
                     className="h-9 w-9"
                     aria-label="Decrease"
-                    onClick={() => setQty(line.slug, line.quantity - 1)}
+                    onClick={() => setQty(line.key, line.quantity - 1)}
                   >
                     −
                   </button>
@@ -78,7 +79,7 @@ export default function CartPage() {
                     type="button"
                     className="h-9 w-9"
                     aria-label="Increase"
-                    onClick={() => setQty(line.slug, line.quantity + 1)}
+                    onClick={() => setQty(line.key, line.quantity + 1)}
                   >
                     +
                   </button>
@@ -91,7 +92,7 @@ export default function CartPage() {
                 <button
                   type="button"
                   className="mt-2 text-muted hover:text-accent"
-                  onClick={() => remove(line.slug)}
+                  onClick={() => remove(line.key)}
                   aria-label="Remove"
                 >
                   <Trash2 size={16} />

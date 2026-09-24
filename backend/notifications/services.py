@@ -42,8 +42,9 @@ def build_order_message(order) -> str:
         f"Items: {order.items.count()}",
     ]
     for item in order.items.all()[:12]:
+        color_bit = f" ({item.color})" if getattr(item, "color", "") else ""
         lines.append(
-            f"- {item.product_name} x{item.quantity} — {order.currency} {item.line_total}"
+            f"- {item.product_name}{color_bit} x{item.quantity} — {order.currency} {item.line_total}"
         )
     lines.append(f"Total: {order.currency} {order.total}")
     lines.append(f"Payment: {order.payment_status.upper()} (Rapid Gateway)")

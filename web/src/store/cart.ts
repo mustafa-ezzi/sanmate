@@ -3,19 +3,25 @@ import { persist } from 'zustand/middleware'
 import type { Product } from '../api/types'
 
 export type CartLine = {
+  key: string
   slug: string
   name: string
   sku: string
+  color: string
   price: string
   image: string
   quantity: number
 }
 
+function lineKey(slug: string, color = '') {
+  return color ? `${slug}::${color}` : slug
+}
+
 type CartState = {
   lines: CartLine[]
-  add: (product: Product, qty?: number) => void
-  remove: (slug: string) => void
-  setQty: (slug: string, quantity: number) => void
+  add: (product: Product, qty?: number, color?: string) => void
+  remove: (key: string) => void
+  setQty: (key: string, quantity: number) => void
   clear: () => void
   count: () => number
   subtotal: () => number
@@ -25,15 +31,14 @@ export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
       lines: [],
-      add: (product, qty = 1) => {
+      add: (product, qty = 1, color = '') => {
+        const key = lineKey(product.slug, color)
         set((state) => {
-          const existing = state.lines.find((l) => l.slug === product.slug)
+          const existing = state.lines.find((l) => l.key === key)
           if (existing) {
             return {
               lines: state.lines.map((l) =>
-                l.slug === product.slug
-                  ? { ...l, quantity: l.quantity + qty }
-                  : l,
+                l.key === key ? { ...l, quantity: l.quantity + qty } : l,
               ),
             }
           }
@@ -41,9 +46,11 @@ export const useCart = create<CartState>()(
             lines: [
               ...state.lines,
               {
+                key,
                 slug: product.slug,
                 name: product.name,
                 sku: product.sku,
+                color,
                 price: product.effective_price,
                 image: product.primary_image,
                 quantity: qty,
@@ -52,15 +59,15 @@ export const useCart = create<CartState>()(
           }
         })
       },
-      remove: (slug) =>
-        set((state) => ({ lines: state.lines.filter((l) => l.slug !== slug) })),
-      setQty: (slug, quantity) =>
+      remove: (key) =>
+        set((state) => ({ lines: state.lines.filter((l) => l.key !== key) })),
+      setQty: (key, quantity) =>
         set((state) => ({
           lines:
             quantity <= 0
-              ? state.lines.filter((l) => l.slug !== slug)
+              ? state.lines.filter((l) => l.key !== key)
               : state.lines.map((l) =>
-                  l.slug === slug ? { ...l, quantity } : l,
+                  l.key === key ? { ...l, quantity } : l,
                 ),
         })),
       clear: () => set({ lines: [] }),
@@ -68,6 +75,18 @@ export const useCart = create<CartState>()(
       subtotal: () =>
         get().lines.reduce((n, l) => n + Number(l.price) * l.quantity, 0),
     }),
-    { name: 'sams-cart' },
+    {
+      name: 'sams-cart',
+      version: 2,
+      migrate: (persisted) => {
+        const state = persisted as { lines?: CartLine[] } | undefined
+        const lines = (state?.lines || []).map((l) => ({
+          ...l,
+          key: l.key || lineKey(l.slug, l.color || ''),
+          color: l.color || '',
+        }))
+        return { lines }
+      },
+    },
   ),
 )

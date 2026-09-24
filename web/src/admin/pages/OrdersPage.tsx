@@ -56,7 +56,8 @@ export default function OrdersPage() {
             <ul className="mb-4 text-sm text-slate-600">
               {order.items.map((item, i) => (
                 <li key={i}>
-                  {item.product_name} × {item.quantity}
+                  {item.product_name}
+                  {item.color ? ` (${item.color})` : ''} × {item.quantity}
                 </li>
               ))}
             </ul>

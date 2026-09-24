@@ -8,6 +8,7 @@ import {
   parseProductXlsx,
   type ImportProductRow,
 } from '../lib/parseProductXlsx'
+import { colorsToInput, parseColorsInput } from '../../lib/colors'
 
 const empty = {
   category: 0,
@@ -20,6 +21,7 @@ const empty = {
   sale_price: '',
   cost_price: '',
   stock: 0,
+  colors: '',
   is_featured: false,
   is_active: true,
   image_url: '',
@@ -65,6 +67,7 @@ export default function ProductsAdminPage() {
     sale_price: string
     cost_price: string
     stock: number
+    colors?: string
     is_featured: boolean
     is_active: boolean
     image_url?: string
@@ -80,6 +83,7 @@ export default function ProductsAdminPage() {
       sale_price: row.sale_price || null,
       cost_price: row.cost_price || null,
       stock: Number(row.stock),
+      colors: parseColorsInput(row.colors || ''),
       is_featured: row.is_featured,
       is_active: row.is_active,
       specs: {},
@@ -244,7 +248,8 @@ export default function ProductsAdminPage() {
               add all products at once. Upload a product photo per row (goes to
               R2). Accepted headers: name, sku, brand / category, price,
               sale_price, cost_price, stock, slug, short_description,
-              description, featured, active.
+              description, colors (e.g. Black, Coral:#E8601C), featured,
+              active.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -332,6 +337,7 @@ export default function ProductsAdminPage() {
                   <th>Cost</th>
                   <th>Stock</th>
                   <th>Short description</th>
+                  <th>Colors</th>
                   <th>Image</th>
                   <th>Flags</th>
                   <th />
@@ -450,6 +456,16 @@ export default function ProductsAdminPage() {
                           updateImportRow(row.key, {
                             short_description: e.target.value,
                           })
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="field min-w-[10rem]"
+                        placeholder="Black, Coral:#E8601C"
+                        value={row.colors}
+                        onChange={(e) =>
+                          updateImportRow(row.key, { colors: e.target.value })
                         }
                       />
                     </td>
@@ -602,6 +618,20 @@ export default function ProductsAdminPage() {
             setForm((f) => ({ ...f, short_description: e.target.value }))
           }
         />
+        <div className="sm:col-span-2">
+          <input
+            className="field w-full"
+            placeholder="Colors (optional) — Black, White, Coral:#E8601C"
+            value={form.colors}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, colors: e.target.value }))
+            }
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Leave blank if the product has no color options. Customers must
+            pick a color before adding to bag when colors are set.
+          </p>
+        </div>
         <ImageUploadField
           label="Product photo"
           shownOn="Displayed on the product card (shop, homepage rail, brand pages) and as the main image on the product detail page."
@@ -702,6 +732,7 @@ export default function ProductsAdminPage() {
                         sale_price: item.sale_price || '',
                         cost_price: item.cost_price || '',
                         stock: item.stock,
+                        colors: colorsToInput(item.colors),
                         is_featured: item.is_featured,
                         is_active: item.is_active,
                         image_url: item.images?.[0]?.url || '',

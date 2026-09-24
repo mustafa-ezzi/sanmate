@@ -62,6 +62,11 @@ class Product(models.Model):
     )
     stock = models.PositiveIntegerField(default=0)
     specs = models.JSONField(default=dict, blank=True)
+    colors = models.JSONField(
+        default=list,
+        blank=True,
+        help_text='Optional color options, e.g. [{"name":"Black","hex":"#111111"}]',
+    )
     is_featured = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

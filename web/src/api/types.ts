@@ -23,6 +23,11 @@ export type Category = {
   sort_order: number
 }
 
+export type ProductColor = {
+  name: string
+  hex: string
+}
+
 export type ProductImage = {
   id: number
   url: string
@@ -45,6 +50,7 @@ export type Product = {
   category_slug: string
   category_name: string
   primary_image: string
+  colors?: ProductColor[]
   specs?: Record<string, string>
   images?: ProductImage[]
 }
@@ -97,7 +103,7 @@ export type OrderPayload = {
   shipping_address: string
   city?: string
   notes?: string
-  items: { product_slug: string; quantity: number }[]
+  items: { product_slug: string; quantity: number; color?: string }[]
 }
 
 export type Order = {
@@ -110,6 +116,7 @@ export type Order = {
   items: {
     product_name: string
     sku: string
+    color?: string
     quantity: number
     unit_price: string
     line_total: string
