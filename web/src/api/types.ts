@@ -26,6 +26,7 @@ export type Category = {
 export type ProductColor = {
   name: string
   hex: string
+  image_url?: string
 }
 
 export type ProductImage = {

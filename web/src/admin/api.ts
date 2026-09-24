@@ -291,7 +291,7 @@ export type AdminProduct = {
   cost_price: string | null
   stock: number
   specs: Record<string, string>
-  colors?: { name: string; hex: string }[]
+  colors?: { name: string; hex: string; image_url?: string }[]
   is_featured: boolean
   is_active: boolean
   images?: { url: string; alt?: string; sort_order?: number }[]

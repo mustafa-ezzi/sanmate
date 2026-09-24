@@ -3,12 +3,13 @@ import { FileSpreadsheet, Package, Pencil, Plus, Trash2, Upload, X } from 'lucid
 import { adminApi, type AdminCategory, type AdminProduct } from '../api'
 import { formatPKR } from '../../lib/format'
 import ImageUploadField from '../components/ImageUploadField'
+import ColorOptionsEditor from '../components/ColorOptionsEditor'
 import { Alert, PageHeader } from '../components/ui'
 import {
   parseProductXlsx,
   type ImportProductRow,
 } from '../lib/parseProductXlsx'
-import { colorsToInput, parseColorsInput } from '../../lib/colors'
+import { normalizeColors, type ProductColor } from '../../lib/colors'
 
 const empty = {
   category: 0,
@@ -21,7 +22,7 @@ const empty = {
   sale_price: '',
   cost_price: '',
   stock: 0,
-  colors: '',
+  colors: [] as ProductColor[],
   is_featured: false,
   is_active: true,
   image_url: '',
@@ -67,7 +68,7 @@ export default function ProductsAdminPage() {
     sale_price: string
     cost_price: string
     stock: number
-    colors?: string
+    colors?: ProductColor[]
     is_featured: boolean
     is_active: boolean
     image_url?: string
@@ -83,7 +84,11 @@ export default function ProductsAdminPage() {
       sale_price: row.sale_price || null,
       cost_price: row.cost_price || null,
       stock: Number(row.stock),
-      colors: parseColorsInput(row.colors || ''),
+      colors: (row.colors || []).map((c) => ({
+        name: c.name,
+        hex: c.hex,
+        image_url: c.image_url || '',
+      })),
       is_featured: row.is_featured,
       is_active: row.is_active,
       specs: {},
@@ -248,8 +253,8 @@ export default function ProductsAdminPage() {
               add all products at once. Upload a product photo per row (goes to
               R2). Accepted headers: name, sku, brand / category, price,
               sale_price, cost_price, stock, slug, short_description,
-              description, colors (e.g. Black, Coral:#E8601C), featured,
-              active.
+              description, colors (optional names in sheet — attach photos in
+              the table), featured, active.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
@@ -337,8 +342,8 @@ export default function ProductsAdminPage() {
                   <th>Cost</th>
                   <th>Stock</th>
                   <th>Short description</th>
-                  <th>Colors</th>
-                  <th>Image</th>
+                  <th>Colors + photos</th>
+                  <th>Default image</th>
                   <th>Flags</th>
                   <th />
                 </tr>
@@ -460,12 +465,11 @@ export default function ProductsAdminPage() {
                       />
                     </td>
                     <td>
-                      <input
-                        className="field min-w-[10rem]"
-                        placeholder="Black, Coral:#E8601C"
+                      <ColorOptionsEditor
+                        compact
                         value={row.colors}
-                        onChange={(e) =>
-                          updateImportRow(row.key, { colors: e.target.value })
+                        onChange={(colors) =>
+                          updateImportRow(row.key, { colors })
                         }
                       />
                     </td>
@@ -619,22 +623,22 @@ export default function ProductsAdminPage() {
           }
         />
         <div className="sm:col-span-2">
-          <input
-            className="field w-full"
-            placeholder="Colors (optional) — Black, White, Coral:#E8601C"
-            value={form.colors}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, colors: e.target.value }))
-            }
-          />
-          <p className="mt-1 text-xs text-slate-500">
-            Leave blank if the product has no color options. Customers must
-            pick a color before adding to bag when colors are set.
+          <p className="mb-2 text-sm font-medium text-slate-700">
+            Color options
           </p>
+          <p className="mb-3 text-xs text-slate-500">
+            One product, multiple finishes. Pick a color and upload that
+            finish&apos;s photo — shoppers see the matching picture when they
+            select it.
+          </p>
+          <ColorOptionsEditor
+            value={form.colors}
+            onChange={(colors) => setForm((f) => ({ ...f, colors }))}
+          />
         </div>
         <ImageUploadField
-          label="Product photo"
-          shownOn="Displayed on the product card (shop, homepage rail, brand pages) and as the main image on the product detail page."
+          label="Default product photo"
+          shownOn="Fallback image when no color is selected, and on product cards."
           value={form.image_url}
           onChange={(url) => setForm((f) => ({ ...f, image_url: url }))}
         />
@@ -732,7 +736,7 @@ export default function ProductsAdminPage() {
                         sale_price: item.sale_price || '',
                         cost_price: item.cost_price || '',
                         stock: item.stock,
-                        colors: colorsToInput(item.colors),
+                        colors: normalizeColors(item.colors),
                         is_featured: item.is_featured,
                         is_active: item.is_active,
                         image_url: item.images?.[0]?.url || '',

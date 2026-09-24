@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx'
+import { parseColorsInput, type ProductColor } from '../../lib/colors'
 
 export type ImportProductRow = {
   key: string
@@ -15,7 +16,7 @@ export type ImportProductRow = {
   cost_price: string
   stock: number
   image_url: string
-  colors: string
+  colors: ProductColor[]
   is_featured: boolean
   is_active: boolean
 }
@@ -137,7 +138,9 @@ export function parseProductXlsx(
           'photo',
           'photo url',
         ]),
-        colors: cell(row, ['colors', 'colour', 'colours', 'color options']),
+        colors: parseColorsInput(
+          cell(row, ['colors', 'colour', 'colours', 'color options']),
+        ),
         is_featured: toBool(
           cell(row, ['is_featured', 'featured']),
           false,

@@ -33,6 +33,11 @@ export const useCart = create<CartState>()(
       lines: [],
       add: (product, qty = 1, color = '') => {
         const key = lineKey(product.slug, color)
+        const match = (product.colors || []).find((c) =>
+          typeof c === 'string' ? c === color : c.name === color,
+        )
+        const imageFromColor =
+          match && typeof match !== 'string' ? match.image_url || '' : ''
         set((state) => {
           const existing = state.lines.find((l) => l.key === key)
           if (existing) {
@@ -52,7 +57,7 @@ export const useCart = create<CartState>()(
                 sku: product.sku,
                 color,
                 price: product.effective_price,
-                image: product.primary_image,
+                image: imageFromColor || product.primary_image,
                 quantity: qty,
               },
             ],

@@ -51,6 +51,14 @@ export default function ProductDetailPage() {
     [product?.colors],
   )
 
+  const selected = colors.find((c) => c.name === selectedColor)
+  const baseImage = product?.images?.[0]?.url || product?.primary_image || ''
+  const displayImage = selected?.image_url || baseImage
+
+  useEffect(() => {
+    setImgBroken(false)
+  }, [displayImage])
+
   if (error) {
     return (
       <div className="page-shell py-16">
@@ -70,19 +78,22 @@ export default function ProductDetailPage() {
     )
   }
 
-  const image = product.images?.[0]?.url || product.primary_image || ''
   const tone = product.category_slug === 'wyped' ? 'wyped' : 'sanmate'
-  const selected = colors.find((c) => c.name === selectedColor)
 
   return (
     <div className={`page-shell py-12 sm:py-16 brand-${tone}`}>
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <div className="relative aspect-square overflow-hidden rounded-[1.75rem] bg-surface shadow-[0_20px_60px_rgba(17,17,17,0.08)]">
-          {image && !imgBroken ? (
+          {displayImage && !imgBroken ? (
             <img
-              src={image}
-              alt={product.name}
-              className={`h-full w-full object-cover ${
+              key={displayImage}
+              src={displayImage}
+              alt={
+                selected
+                  ? `${product.name} — ${selected.name}`
+                  : product.name
+              }
+              className={`h-full w-full object-cover transition duration-500 ${
                 tone === 'wyped' ? 'img-wyped' : 'img-sanmate'
               }`}
               onError={() => setImgBroken(true)}
@@ -91,13 +102,6 @@ export default function ProductDetailPage() {
             <div className="grid h-full place-items-center p-8 text-center font-display text-2xl text-ink/25">
               {product.name}
             </div>
-          )}
-          {selected && (
-            <div
-              className="pointer-events-none absolute inset-0 mix-blend-multiply opacity-35"
-              style={{ backgroundColor: selected.hex }}
-              aria-hidden
-            />
           )}
           {selected && (
             <span className="absolute bottom-4 left-4 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur">
@@ -151,13 +155,24 @@ export default function ProductDetailPage() {
                         setSelectedColor(c.name)
                         setColorError('')
                       }}
-                      className={`group relative h-10 w-10 rounded-full border-2 transition ${
+                      className={`relative h-12 w-12 overflow-hidden rounded-full border-2 transition ${
                         active
                           ? 'border-ink scale-110 shadow-[0_8px_20px_rgba(17,17,17,0.18)]'
                           : 'border-border hover:border-ink/40'
                       }`}
-                      style={{ backgroundColor: c.hex }}
+                      style={
+                        c.image_url
+                          ? undefined
+                          : { backgroundColor: c.hex }
+                      }
                     >
+                      {c.image_url ? (
+                        <img
+                          src={c.image_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : null}
                       <span className="sr-only">{c.name}</span>
                     </button>
                   )
