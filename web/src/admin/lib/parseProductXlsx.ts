@@ -92,7 +92,7 @@ export function parseProductXlsx(
   })
 
   return rows
-    .map((row, index) => {
+    .map((row, index): ImportProductRow | null => {
       const name = cell(row, ['name', 'product', 'product name', 'title'])
       const sku = cell(row, ['sku', 'code', 'product sku', 'item code'])
       if (!name && !sku) return null
@@ -141,7 +141,7 @@ export function parseProductXlsx(
           false,
         ),
         is_active: toBool(cell(row, ['is_active', 'active']), true),
-      } satisfies ImportProductRow
+      }
     })
     .filter((row): row is ImportProductRow => row != null)
 }
