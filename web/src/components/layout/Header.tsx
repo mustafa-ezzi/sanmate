@@ -26,6 +26,7 @@ export default function Header() {
     () => [
       { to: '/products', label: 'Shop' },
       ...brands.map((b) => ({ to: `/brands/${b.slug}`, label: b.name })),
+      { to: '/about', label: 'About' },
       { to: '/policies/shipping', label: 'Shipping' },
     ],
     [brands],

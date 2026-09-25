@@ -12,6 +12,7 @@ import OrdersPage from './admin/pages/OrdersPage'
 import PoliciesPage from './admin/pages/PoliciesPage'
 import ProductsAdminPage from './admin/pages/ProductsPage'
 import SettingsPage from './admin/pages/SettingsPage'
+import AboutPage from './pages/AboutPage'
 import BrandPage from './pages/BrandPage'
 import CartPage from './pages/CartPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -53,6 +54,7 @@ export default function App() {
 
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="brands/:slug" element={<BrandPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:slug" element={<ProductDetailPage />} />

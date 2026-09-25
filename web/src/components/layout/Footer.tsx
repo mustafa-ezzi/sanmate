@@ -88,6 +88,7 @@ export default function Footer() {
               ...brands.map(
                 (b) => [`/brands/${b.slug}`, b.name] as [string, string],
               ),
+              ['/about', 'About'] as const,
               ['/policies/privacy', 'Privacy'] as const,
               ['/policies/return', 'Returns'] as const,
               ['/policies/exchange', 'Exchange'] as const,
