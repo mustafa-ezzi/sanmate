@@ -43,9 +43,9 @@ function HeroMedia({ src, alt }: { src?: string; alt: string }) {
     >
       <div className="px-8 text-center">
         <img
-          src="/images/sams-logo.jpg"
+          src="/images/logo.png"
           alt=""
-          className="mx-auto h-20 w-20 rounded-2xl object-cover ring-1 ring-white/20"
+          className="mx-auto h-20 w-20 rounded-2xl object-contain ring-1 ring-white/20"
         />
         <p className="mt-5 font-display text-3xl font-extrabold tracking-[-0.08em] text-white/90">
           SAMS

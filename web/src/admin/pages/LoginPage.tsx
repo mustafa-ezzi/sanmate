@@ -40,9 +40,9 @@ export default function LoginPage() {
       <div className="relative mx-auto grid min-h-screen max-w-5xl items-center gap-10 py-10 lg:grid-cols-2">
         <div className="hidden text-white lg:block">
           <img
-            src="/images/sams-logo.jpg"
+            src="/images/logo.png"
             alt="SAMS"
-            className="h-16 w-16 rounded-2xl object-cover ring-1 ring-white/20"
+            className="h-16 w-16 rounded-2xl object-contain ring-1 ring-white/20"
           />
           <p className="mt-8 text-xs font-semibold uppercase tracking-[0.2em] text-white/50">
             SAMS Enterprises
@@ -62,9 +62,9 @@ export default function LoginPage() {
         >
           <div className="mb-6 flex items-center gap-3 lg:hidden">
             <img
-              src="/images/sams-logo.jpg"
+              src="/images/logo.png"
               alt=""
-              className="h-10 w-10 rounded-full object-cover"
+              className="h-10 w-10 rounded-full object-contain"
             />
             <p className="font-display font-extrabold text-[#171c4e]">
               SAMS Admin

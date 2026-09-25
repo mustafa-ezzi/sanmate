@@ -51,9 +51,9 @@ export default function AdminLayout() {
     <>
       <div className="admin-sidebar-brand">
         <img
-          src="/images/sams-logo.jpg"
+          src="/images/logo.png"
           alt=""
-          className="h-10 w-10 rounded-full object-cover ring-1 ring-white/15"
+          className="h-10 w-10 rounded-full object-contain ring-1 ring-white/15"
         />
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#9aa3d1]">

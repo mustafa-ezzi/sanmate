@@ -38,6 +38,12 @@ export default function ProductsAdminPage() {
   const [importFileName, setImportFileName] = useState('')
   const [importing, setImporting] = useState(false)
   const [importStatus, setImportStatus] = useState('')
+  const [listBrand, setListBrand] = useState<number | 'all'>('all')
+
+  const filteredItems =
+    listBrand === 'all'
+      ? items
+      : items.filter((it) => it.category === listBrand)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function load() {
@@ -747,6 +753,31 @@ export default function ProductsAdminPage() {
       {error && <Alert>{error}</Alert>}
 
       <div className="admin-card overflow-x-auto">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-medium text-slate-600">
+            {filteredItems.length} product{filteredItems.length === 1 ? '' : 's'}
+            {listBrand !== 'all' ? ' in this brand' : ''}
+          </p>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <span>Filter by brand</span>
+            <select
+              value={listBrand}
+              onChange={(e) =>
+                setListBrand(
+                  e.target.value === 'all' ? 'all' : Number(e.target.value),
+                )
+              }
+              className="field w-auto"
+            >
+              <option value="all">All brands</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         <table className="admin-table min-w-[640px]">
           <thead>
             <tr>
@@ -758,7 +789,7 @@ export default function ProductsAdminPage() {
             </tr>
           </thead>
           <tbody>
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <tr key={item.id}>
                 <td>
                   <div className="flex items-center gap-3">
@@ -822,6 +853,13 @@ export default function ProductsAdminPage() {
                 </td>
               </tr>
             ))}
+            {!filteredItems.length && (
+              <tr>
+                <td colSpan={5} className="py-8 text-center text-sm text-slate-500">
+                  No products{listBrand !== 'all' ? ' for this brand' : ' yet'}.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

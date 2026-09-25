@@ -64,9 +64,9 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-white p-1.5">
               <img
-                src="/images/sams-logo.jpg"
+                src="/images/logo.png"
                 alt="SAMS Enterprises"
-                className="h-10 w-10 rounded-lg object-cover"
+                className="h-10 w-10 rounded-lg object-contain"
               />
             </div>
             <div>

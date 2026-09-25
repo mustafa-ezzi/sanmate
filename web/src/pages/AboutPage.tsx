@@ -100,7 +100,7 @@ export default function AboutPage() {
 
   const heroImage =
     brands.find((b) => b.category?.hero_image_url)?.category?.hero_image_url ||
-    '/images/logo-sams.jpg'
+    '/images/logo.png'
 
   return (
     <div>
@@ -116,9 +116,9 @@ export default function AboutPage() {
           <div className="flex items-center gap-4">
             <div className="rounded-2xl bg-white p-2">
               <img
-                src="/images/sams-logo.jpg"
+                src="/images/logo.png"
                 alt="SAMS Enterprises"
-                className="h-12 w-12 rounded-xl object-cover sm:h-14 sm:w-14"
+                className="h-12 w-12 rounded-xl object-contain sm:h-14 sm:w-14"
               />
             </div>
             <p className="font-mono-label text-white/60">
