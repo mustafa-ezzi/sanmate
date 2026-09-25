@@ -61,9 +61,44 @@ class AdminProductSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "created_at", "updated_at")
 
+    def validate(self, attrs):
+        request = self.context.get("request")
+        company = None
+        if request is not None:
+            from companies.company_context import get_admin_company
+
+            try:
+                company = get_admin_company(request)
+            except Exception:
+                company = getattr(request, "company", None)
+        if company is None and self.instance is not None:
+            company = self.instance.company
+
+        slug = attrs.get("slug", getattr(self.instance, "slug", None))
+        sku = attrs.get("sku", getattr(self.instance, "sku", None))
+        errors = {}
+        if company and slug:
+            qs = Product.objects.filter(company=company, slug=slug)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                errors["slug"] = "A product with this slug already exists."
+        if company and sku:
+            qs = Product.objects.filter(company=company, sku=sku)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
+                errors["sku"] = "A product with this SKU already exists."
+        if errors:
+            raise serializers.ValidationError(errors)
+        return attrs
+
     def create(self, validated_data):
         images_data = validated_data.pop("images", [])
-        product = Product.objects.create(**validated_data)
+        try:
+            product = Product.objects.create(**validated_data)
+        except Exception as exc:
+            raise serializers.ValidationError(str(exc)) from exc
         for img in images_data:
             ProductImage.objects.create(product=product, **img)
         return product
@@ -72,7 +107,10 @@ class AdminProductSerializer(serializers.ModelSerializer):
         images_data = validated_data.pop("images", None)
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        instance.save()
+        try:
+            instance.save()
+        except Exception as exc:
+            raise serializers.ValidationError(str(exc)) from exc
         if images_data is not None:
             instance.images.all().delete()
             for img in images_data:

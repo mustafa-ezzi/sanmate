@@ -23,6 +23,55 @@ export function setCompanySlug(slug: string) {
   localStorage.setItem(COMPANY_KEY, slug)
 }
 
+function formatApiErrorPayload(data: unknown, status: number): string {
+  if (data == null || data === '') {
+    return `Request failed (${status})`
+  }
+  if (typeof data === 'string') {
+    const trimmed = data.trim()
+    // Strip HTML error pages down to a useful line when possible
+    if (trimmed.startsWith('<')) {
+      const title = trimmed.match(/<title>([^<]+)<\/title>/i)?.[1]
+      const h1 = trimmed.match(/<h1>([^<]+)<\/h1>/i)?.[1]
+      const exc = trimmed.match(
+        /Exception Value:\s*<\/th>\s*<td>([^<]+)/i,
+      )?.[1]
+      return (
+        [exc, h1, title].find(Boolean)?.replace(/\s+/g, ' ').trim() ||
+        `Request failed (${status}) — server returned an HTML error page`
+      )
+    }
+    return trimmed
+  }
+  if (typeof data !== 'object') {
+    return String(data)
+  }
+
+  const obj = data as Record<string, unknown>
+  if (typeof obj.detail === 'string') return obj.detail
+  if (Array.isArray(obj.detail)) {
+    return obj.detail.map(String).join(' · ')
+  }
+
+  const parts: string[] = []
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === 'detail') continue
+    if (Array.isArray(value)) {
+      parts.push(`${key}: ${value.map(String).join(', ')}`)
+    } else if (value && typeof value === 'object') {
+      parts.push(`${key}: ${JSON.stringify(value)}`)
+    } else if (value != null && value !== '') {
+      parts.push(`${key}: ${String(value)}`)
+    }
+  }
+  if (parts.length) return parts.join(' · ')
+  try {
+    return JSON.stringify(data)
+  } catch {
+    return `Request failed (${status})`
+  }
+}
+
 async function request<T>(
   path: string,
   options: RequestInit & { skipAuth?: boolean } = {},
@@ -44,11 +93,12 @@ async function request<T>(
   })
   if (!res.ok) {
     let message = `Request failed (${res.status})`
+    const raw = await res.text()
     try {
-      const data = await res.json()
-      message = data.detail || JSON.stringify(data)
+      const data = raw ? JSON.parse(raw) : null
+      message = formatApiErrorPayload(data, res.status)
     } catch {
-      /* ignore */
+      message = formatApiErrorPayload(raw, res.status)
     }
     throw new Error(message)
   }
